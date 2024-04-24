@@ -1,0 +1,7 @@
+.venv
+.vscode
+.idea
+.ruff_cache
+.env
+
+**/__pycache__
