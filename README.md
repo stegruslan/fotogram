@@ -21,7 +21,7 @@
 - avatar
 - bio
 
-
+![Текст с описанием картинки](https://github.com/stegruslan/fotogram/blob/master/image/Untitled%20Workspace.jpg)
 
 Гроку задаем порт который будет идти на движок инджинкс
 Если в адресе есть ручка с АПИ то Нджинкс кидает на бэк, 
