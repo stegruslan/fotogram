@@ -4,6 +4,7 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from settings import settings
 
+# Создание соединения с базой данных SQLAlchemy
 engine = create_engine(
     f"postgresql+psycopg2://"
     f"{settings.DB_USER}:{settings.DB_PASSWORD}@"
@@ -17,6 +18,7 @@ engine = create_engine(
 #                        f"{settings.DB_NAME}")
 
 session_factory = sessionmaker(bind=engine)
+
 
 class Base(DeclarativeBase):
     """Базовая модель."""

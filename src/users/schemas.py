@@ -15,7 +15,7 @@ class SignUpSchema(BaseModel):
     bio: str | None
 
 class UserSchema(BaseModel):
-    """Схема данных для возврата пользователям."""
+    """Схема данных для возврата информации о пользователе. """
 
     username: str
     fullname: str

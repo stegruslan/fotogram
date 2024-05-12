@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int
 
     class Config:
-        """Конфиг насйтроек."""
+        """Конфиг настроек."""
 
         case_sensitive = True
         env_file = "../.env"
