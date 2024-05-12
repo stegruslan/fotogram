@@ -1,11 +1,13 @@
-version: '3'
+version: "3"
 
 services:
 
   postgres:
-    image: postgres:15
-    env_file: .env
+    image: postgres:15.1
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
     restart: unless-stopped
     ports:
       - "5432:5432"
-    
