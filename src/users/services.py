@@ -53,7 +53,7 @@ def authenticate_user(username: str, password: str):
 def create_access_token(data: dict, expires_delta: int = 15):
     # Принимает данные для включения в токен и время его жизни в минутах.
     to_encode = data.copy()
-    # Создаем копию переданных данных
+    # Создается копия словаря data, чтобы избежать изменений в исходных данных.
     expire = datetime.now(timezone.utc) + timedelta(minutes=expires_delta)
     # Вычисляем время истечения токена,
     # путем добавления переданного количества минут к текущему времени
@@ -127,6 +127,22 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
             raise credentials_exception
         # Возвращаем найденного пользователя
         return user
+
+
+CurrentUser = Annotated[User, Depends(get_current_user)]
+
+
+# Принимает аргумент current_user,
+# который представляет собой текущего пользователя,
+# аннотированного как CurrentUser
+# Автоматически извлечет текущего пользователя,
+# используя зависимость get_current_user
+async def read_users_me(
+    current_user: CurrentUser,
+):
+    return Response(status_code=200,
+                    content=current_user.fullname + " " + current_user.birthday.strftime(
+                        "%B %d, %Y"))
 
 
 def signup(ud: SignUpSchema) -> Response | UserSchema:

@@ -14,6 +14,7 @@ class SignUpSchema(BaseModel):
     birthday: datetime | None
     bio: str | None
 
+
 class UserSchema(BaseModel):
     """Схема данных для возврата информации о пользователе. """
 
@@ -25,6 +26,7 @@ class UserSchema(BaseModel):
     bio: str | None
     avatar: str | None
 
+
 class Token(BaseModel):
     """Токен доступа."""
     access_token: str
@@ -34,3 +36,9 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     """Данные для размещения в токене."""
     username: str | None = None
+
+
+class RefreshToken(BaseModel):
+    """Модель refresh token."""
+    token: str
+    expires_at: datetime  # дата и время истечения срока действия токена.

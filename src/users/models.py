@@ -1,9 +1,13 @@
 """Файл моделей ORM для части работы пользователей."""
 from datetime import datetime
 
-from sqlalchemy.orm import Mapped, mapped_column
-
+from sqlalchemy import text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.types import Uuid
 from database import Base
+from uuid import UUID
+
+from posts.models import Post
 
 
 class User(Base):
@@ -27,3 +31,8 @@ class User(Base):
     last_activity: Mapped[datetime]
     # Дата и время последней активности пользователя
     avatar: Mapped[str | None]  # Путь к аватару пользователя (может быть None)
+
+    # Отношение с моделью Post.
+    # Атрибут back_populates указывает на атрибут author в модели Post,
+    # который устанавливает обратное отношение.
+    posts: Mapped[list[Post]] = relationship("Post", back_populates="author")
