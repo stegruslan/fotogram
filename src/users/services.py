@@ -60,7 +60,7 @@ def create_access_token(data: dict, expires_delta: int = 15):
     to_encode.update({"exp": expire})
     # Добавляем время истечения с данными,
     # которые будут закодированы в токене.
-    encoded_jwt = jwt.encode(data.copy(), settings.SECRET_KEY,
+    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY,
                              algorithm=settings.ALGORITHM)
     # Кодируем данные в формат JWT,
     # используя секретный ключ и алгоритм, указанные в настройках
@@ -110,6 +110,11 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         # указанные в настройках
         payload = jwt.decode(token, settings.SECRET_KEY,
                              algorithms=[settings.ALGORITHM])
+        exp: int = payload.get("exp")
+        token_date = datetime.fromtimestamp(exp, timezone.utc)
+        if token_date.replace(tzinfo=timezone.utc) < datetime.now(
+            timezone.utc):
+            raise credentials_exception
         # Получаем имя пользователя из данных токена
         username: str = payload.get("sub")
         # Если имя пользователя отсутствует в данных токена,

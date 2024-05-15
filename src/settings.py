@@ -1,4 +1,6 @@
 """Файл, хранящий глобальные настройки проекта."""
+from pathlib import Path
+
 from pydantic_settings import BaseSettings
 
 
@@ -16,7 +18,8 @@ class Settings(BaseSettings):
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
 
-    PATH_FILES: str
+    PATH_FILES_STR: str = "../files"
+    PATH_FILES: Path = Path(PATH_FILES_STR)
 
     class Config:
         """Конфиг настроек."""

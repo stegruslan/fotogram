@@ -32,4 +32,4 @@ class FileModel(Base):
     # - Связь с моделью Post.
     # - back_populates указывает на атрибут images в модели Post,
     # который устанавливает обратное отношение.
-    posts: Mapped["Post"] = relationship("Post", back_populates="images")
+    post: Mapped["Post"] = relationship("Post", back_populates="images")

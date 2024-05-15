@@ -34,7 +34,7 @@ class Post(Base):
     # - Связь с моделью FileModel.
     # - back_populates указывает на атрибут posts в модели FileModel,
     # который устанавливает обратное отношение.
-    images: Mapped[list[FileModel]] = relationship("FileModel", back_populates="posts")
+    images: Mapped[list[FileModel]] = relationship("FileModel", back_populates="post")
 
     # Отношение author:
     # - Связь с моделью User.

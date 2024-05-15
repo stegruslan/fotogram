@@ -6,9 +6,10 @@ from fastapi import FastAPI
 from users.routing import router as users_router
 from settings import settings
 from posts.routing import router as posts_router
+from files.routing import router as files_router
 
 
-def create_app() -> FastAPI: # Функция для создания приложения FastAPI.
+def create_app() -> FastAPI:  # Функция для создания приложения FastAPI.
     # Проверка, существует ли директория для файлов, заданная в настройках.
     if not Path(settings.PATH_FILES).is_dir():
         # Если директория не существует, она создается.
@@ -20,6 +21,7 @@ def create_app() -> FastAPI: # Функция для создания прило
 app = create_app()
 app.include_router(users_router, prefix="/api/v1", tags=["api/v1"])
 app.include_router(posts_router, prefix="/api/v1", tags=["api/v1"])
+app.include_router(files_router, prefix="/api/v1", tags=["api/v1"])
 
 
 @app.get("/")
