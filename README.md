@@ -73,4 +73,64 @@ def read_root():
     "Hello": "World"
 }
 ```
+## Описание API
 
+### Регистрация пользователя
+
+#### URL: `/users/signup/`
+
+#### Метод: `POST`
+
+#### Описание: Регистрирует нового пользователя в системе.
+
+#### Тело запроса (JSON):
+```json
+{
+  "username": "test_user",
+  "password": "1234",
+  "fullname": "Ivan Ivanov ",
+  "email": "ivan@test.com",
+  "avatar": "http://test.com/avatar.jpg"
+}
+```
+
+#### Пример успешного ответа:
+```json
+{
+  "id": 1,
+  "username": "test_user",
+  "fullname": "Ivan Ivanov",
+  "email": "ivan@test.com",
+  "avatar": "http://test.com/avatar.jpg"
+}
+```
+
+#### Пример запроса с ошибкой:
+```json
+{
+  "detail": "Username already taken"
+}
+```
+
+### Аутентификация пользователя:
+#### URL: `/users/login/`
+#### Метод: `POST`
+
+#### Описание: маршрут /token, который принимает данные формы запроса с именем пользователя и паролем, аутентифицирует пользователя с помощью функции authenticate_user, и если пользователь успешно аутентифицирован, генерирует и возвращает токен доступа.
+#### Тело запроса (form-data):
+![Текст с описанием картинки](https://github.com/stegruslan/fotogram/blob/master/image/form-data(postman).png)
+
+#### Пример успешного ответа:
+```json
+{
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJSdXNsYW4iLCJleHAiOjE3MTY3NTg0Nzl9.ma2sbuK0CToG75fu8SqRUWwtAPedOQqMTxnrHcHNQMw",
+    "token_type": "bearer"
+}
+```
+
+#### Пример запроса с ошибкой:
+```json
+{
+  "detail": "Incorrect username or password"
+}
+```

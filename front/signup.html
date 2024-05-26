@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Регистрация</title>
+</head>
+<body>
+<div>
+    <h1>Регистрация</h1>
+    <p>Username</p>
+    <input type="text" id="username">
+    <p>Полное имя</p>
+    <input type="text" id="fullname">
+    <p>Пароль</p>
+    <input type="text" id="password">
+    <p>Повторите пароль</p>
+    <input type="text" id="password_repeat">
+    <p>О себе</p>
+    <input type="text" id="bio">
+    <p>Дата рождения</p>
+    <input type="date" id="birthday">
+    <br>
+    <button onclick="reg()">Зарегистрироваться</button>
+    <script>
+        const reg = async () => {
+            let username = document.getElementById("username").value
+            let fullname = document.getElementById("fullname").value
+            let password = document.getElementById("password").value
+            let password_repeat = document.getElementById("password_repeat").value
+            let bio = document.getElementById("bio").value
+            let birthday = document.getElementById("birthday").value
+            const data = {username, fullname, password, password_repeat, bio, birthday}
+            const response = await send(data)
+            if (!response.ok) {
+                alert("Ошибка:\n" + (await response.json()).error)
+            } else {
+                alert("Вы зарегистрированы!")
+            }
+        }
+        const URL = "http://localhost:8000/api/v1/users/signup"
+        const send = async (data) => {
+            return await fetch(URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+        }
+    </script>
+</div>
+</body>
+</html>
