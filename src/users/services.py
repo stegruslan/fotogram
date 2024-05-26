@@ -7,9 +7,11 @@ from fastapi.responses import Response
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import jwt, JWTError
 from passlib.context import CryptContext
+from sqlalchemy import and_
+
 from database import session_factory
 from settings import settings
-from .models import User
+from .models import User, Subscribe
 from .schemas import SignUpSchema, UserSchema, Token
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -22,23 +24,44 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 def verify_password(plain_password, hashed_password):
+    """
+        Проверяет соответствие хэшированного пароля переданному паролю.
+
+        Args:
+            plain_password (str): Пароль в обычном виде.
+            hashed_password (str): Хэшированный пароль.
+
+        Returns:
+            bool: True, если пароли совпадают, иначе False.
+        """
     return pwd_context.verify(plain_password, hashed_password)
 
 
-# Принимает два аргумента: пароль в обычном виде и хэшированный пароль.
-# Проверяет, соответствует ли хэшированный пароль переданному паролю.
-# Возвращает True, если пароли совпадают, и False в противном случае.
-
-
 def get_password_hash(password):
+    """
+        Хэширует переданный пароль.
+
+        Args:
+            password (str): Пароль в обычном виде.
+
+        Returns:
+            str: Хэшированный пароль.
+        """
     return pwd_context.hash(password)
 
 
-# Принимает пароль в обычном виде.
-# Хэширует переданный пароль и возвращает его.
-
 def authenticate_user(username: str, password: str):
-    # Принимает имя пользователя и пароль.
+    """
+        Аутентифицирует пользователя по имени пользователя и паролю.
+
+        Args:
+            username (str): Имя пользователя.
+            password (str): Пароль в обычном виде.
+
+        Returns:
+            User | None: Пользователь, если аутентификация прошла успешно,
+            иначе None.
+        """
 
     with (session_factory() as session):
         user = session.query(User).filter_by(username=username).first()
@@ -51,6 +74,17 @@ def authenticate_user(username: str, password: str):
 
 
 def create_access_token(data: dict, expires_delta: int = 15):
+    """
+        Создает JWT токен доступа.
+
+        Args:
+            data (dict): Данные для включения в токен.
+            expires_delta (int, optional): Время жизни токена в минутах.
+            Defaults to 15.
+
+        Returns:
+            str: Закодированный JWT токен.
+        """
     # Принимает данные для включения в токен и время его жизни в минутах.
     to_encode = data.copy()
     # Создается копия словаря data, чтобы избежать изменений в исходных данных.
@@ -71,7 +105,16 @@ def create_access_token(data: dict, expires_delta: int = 15):
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> Token:
-    # Принимает данные формы запроса (имя пользователя и пароль).
+    """
+        Обрабатывает запрос на получение токена доступа.
+
+        Args:
+            form_data (OAuth2PasswordRequestForm): Данные формы запроса
+            (имя пользователя и пароль).
+
+        Returns:
+            Token: Токен доступа и тип токена.
+        """
 
     # Аутентифицируем пользователя,
     # используя переданные имя пользователя и пароль
@@ -97,7 +140,16 @@ async def login_for_access_token(
 
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
-    # Принимает токен доступа
+    """
+        Получает текущего пользователя по токену доступа.
+
+        Args:
+            token (str): Токен доступа.
+
+        Returns:
+            User: Текущий пользователь.
+        """
+
     # Создание HTTP исключения для случая,
     # когда учетные данные не могут быть проверены
     credentials_exception = HTTPException(
@@ -145,14 +197,32 @@ CurrentUser = Annotated[User, Depends(get_current_user)]
 async def read_users_me(
     current_user: CurrentUser,
 ):
+    """
+        Возвращает информацию о текущем пользователе.
+
+        Args:
+            current_user (User): Текущий пользователь.
+
+        Returns:
+            Response: Ответ с информацией о пользователе.
+        """
     return Response(status_code=200,
                     content=current_user.fullname + " " + current_user.birthday.strftime(
                         "%B %d, %Y"))
 
 
 def signup(ud: SignUpSchema) -> Response | UserSchema:
-    # Принимает данные для регистрации нового пользователя
-    # и возвращает либо ответ, либо данные пользователя.
+    """
+        Регистрирует нового пользователя.
+
+        Args:
+            ud (SignUpSchema): Данные для регистрации.
+
+        Returns:
+            Response | UserSchema:
+            Ответ с ошибкой или данные зарегистрированного пользователя.
+        """
+
     if ud.password != ud.password_repeat:
         return Response(status_code=status.HTTP_400_BAD_REQUEST,
                         content=json.dumps({"error": "Passwords must match"}))
@@ -203,3 +273,70 @@ def signup(ud: SignUpSchema) -> Response | UserSchema:
             )
             # Возвращаем данные пользователя
             return ur
+
+
+def subscribe(current_user: CurrentUser, author_id: int) -> Response:
+    """
+        Подписывает текущего пользователя на автора.
+
+        Args:
+            current_user (User): Текущий пользователь.
+            author_id (int): ID автора.
+
+        Returns:
+            Response: Ответ с результатом операции.
+        """
+    # Создаем сессию для работы с базой данных.
+    with session_factory() as session:
+        # Ищем автора по ID.
+        author = session.query(User).filter_by(id=author_id).first()
+        # Если автор не найден, выбрасываем HTTP исключение с кодом 404.
+        if author is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail="Author not found")
+        # Ищем запись о подписке текущего пользователя на этого автора.
+        current_subscribe = session.query(Subscribe).filter(
+            and_(Subscribe.subscriber == current_user,
+                 Subscribe.author == author)).first()
+        # Если подписки нет, создаем новую запись о подписке.
+        if not current_subscribe:
+            current_subscribe = Subscribe(author=author,
+                                          subscriber=current_user)
+            # Добавляем новую запись в сессию.
+            session.add(current_subscribe)
+            # Сохраняем изменения в базе данных.
+            session.commit()
+        # Возвращаем ответ с кодом 200 (OK).
+        return Response(status_code=status.HTTP_200_OK)
+
+
+def unsubscribe(current_user: CurrentUser, author_id: int) -> Response:
+    """
+        Отписывает текущего пользователя от автора.
+
+        Args:
+            current_user (User): Текущий пользователь.
+            author_id (int): ID автора.
+
+        Returns:
+            Response: Ответ с результатом операции.
+        """
+    # Создаем сессию для работы с базой данных.
+    with session_factory() as session:
+        # Ищем автора по ID.
+        author = session.query(User).filter_by(id=author_id).first()
+        # Если автор не найден, выбрасываем HTTP исключение с кодом 404.
+        if author is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail="Author not found")
+        # Ищем запись о подписке текущего пользователя на этого автора.
+        current_subscribe = session.query(Subscribe).filter(
+            Subscribe.author == author).filter(
+            Subscribe.subscriber == current_user).first()
+        # Если подписка существует, удаляем ее.
+        if current_subscribe:
+            session.delete(current_subscribe)
+            # Сохраняем изменения в базе данных.
+            session.commit()
+        # Возвращаем ответ с кодом 200 (OK).
+        return Response(status_code=status.HTTP_200_OK)

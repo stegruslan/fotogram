@@ -1,24 +1,33 @@
 import uuid
 from datetime import datetime
-from pathlib import Path
 from typing import Annotated
-
-from fastapi import UploadFile, Form
-
+from posts.models import Like, Post, Comment
+from posts.schemas import CommentInputSchema, CommentSchema
+from fastapi import Form, UploadFile
+from starlette.responses import Response
+from fastapi import Form, UploadFile, HTTPException
+from database import session_factory
 from files.models import FileModel
-from posts.models import Post
+from posts.models import Like, Post, Comment
 from settings import settings
 from users.services import CurrentUser
-from posts.schemas import PostSchema
-from database import session_factory
 
 
 async def create_post(current_user: CurrentUser,
                       content: Annotated[str, Form()],
                       files: list[UploadFile]) -> None:
-    # Определяет асинхронную функцию create_post,
-    # которая принимает текущего пользователя,
-    # содержимое поста и список файлов для загрузки, и возвращает None
+    """
+       Создает новый пост с файлами.
+
+       Args:
+           current_user (CurrentUser): Текущий пользователь.
+           content (str): Содержимое поста.
+           files (list[UploadFile]): Список файлов для загрузки.
+
+       Returns:
+           None
+       """
+
     with session_factory() as session:
         # Создается сессия для взаимодействия с базой данных
         post = Post(content=content, created_at=datetime.now(),
@@ -52,3 +61,113 @@ async def create_post(current_user: CurrentUser,
             # Добавляет файл в сессию
         session.commit()
         # Коммитит все изменения в базе данных
+
+
+def like_post(current_user: CurrentUser, post_id: int, like: bool) -> Response:
+    """
+        Обрабатывает лайк или дизлайк поста.
+
+        Args:
+            current_user (CurrentUser): Текущий пользователь.
+            post_id (int): ID поста.
+            like (bool): True для лайка, False для удаления лайка.
+
+        Returns:
+            Response: HTTP-ответ.
+        """
+    with session_factory() as session:
+        # Создаем сессию для взаимодействия с базой данных.
+        user_like = session.query(Like,
+                                  ).filter(
+            Like.post_id == post_id,
+            Like.user_id == current_user.id,
+        ).first()
+        # Ищем существующий лайк пользователя для данного поста.
+        if like and user_like or not like and not user_like:
+            # Если лайк уже существует или дизлайк уже отсутствует,
+            # возвращаем статус 200.
+            return Response(status_code=200)
+        if not user_like:
+            # Если лайка нет, создаем новый лайк.
+            user_like = Like(post_id=post_id, user_id=current_user.id)
+            session.add(user_like)
+            session.commit()
+            return Response(status_code=200)
+        if user_like:
+            # Если лайк есть, удаляем его.
+            session.delete(user_like)
+            session.commit()
+            return Response(status_code=200)
+
+
+def create_comment(current_user: CurrentUser, post_id: int,
+                   comment: CommentInputSchema) -> CommentSchema:
+    """
+        Создает новый комментарий к посту.
+
+        Args:
+            current_user (CurrentUser): Текущий пользователь.
+            post_id (int): ID поста.
+            comment (CommentInputSchema): Данные комментария.
+
+        Returns:
+            CommentSchema: Созданный комментарий.
+        """
+    with session_factory() as session:
+        # Создаем сессию для взаимодействия с базой данных.
+        user_comment = Comment(
+            user=current_user,
+            post_id=post_id,
+            content=comment.content,
+            created_at=datetime.now(),
+        )
+        # Создаем объект комментария с данными из входной схемы.
+        session.add(user_comment)
+        # Добавляем комментарий в сессию.
+        session.commit()
+        # Коммитим изменения в базу данных.
+        return CommentSchema(
+            id=user_comment.id,
+            content=user_comment.content,
+            created_at=user_comment.created_at,
+            user_id=user_comment.user_id,
+            post_id=user_comment.post_id
+        )
+    # Возвращаем данные созданного комментария.
+
+
+def delete_comment(current_user: CurrentUser, post_id: int,
+                   comment_id: int) -> Response:
+    """
+        Удаляет комментарий к посту.
+
+        Args:
+            current_user (CurrentUser): Текущий пользователь.
+            post_id (int): ID поста.
+            comment_id (int): ID комментария.
+
+        Returns:
+            Response: HTTP-ответ.
+        """
+    with session_factory() as session:
+        # Создаем сессию для взаимодействия с базой данных.
+        comment = session.query(Comment).filter(
+            Comment.id == comment_id).filter(
+            Comment.post_id == post_id
+        ).first()
+        # Ищем комментарий по идентификатору и идентификатору поста.
+        if not comment:
+            # Если комментарий не найден, возвращаем ошибку 404.
+            raise HTTPException(status_code=404,
+                                detail=f"Comment with id {comment_id} not found")
+        if comment.user_id != current_user.id:
+            # Если текущий пользователь не является автором комментария,
+            # возвращаем ошибку 403.
+            raise HTTPException(status_code=403,
+                                detail="You are not permission to delete this comment")
+        session.delete(comment)
+        # Удаляем комментарий из базы данных.
+        session.commit()
+        # Коммитим изменения.
+        return Response(status_code=204)
+    # Возвращаем ответ с кодом 204 (No Content).
