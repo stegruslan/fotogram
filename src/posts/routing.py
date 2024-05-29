@@ -1,10 +1,12 @@
 from fastapi import APIRouter
 
 from posts.services import create_post, like_post, create_comment, \
-    delete_comment
+    delete_comment, get_posts
 
 router = APIRouter(prefix="/posts", tags=["posts"])
 # Создаем экземпляр APIRouter с префиксом пути "/posts" и тегом "posts".
+
+router.get("/")(get_posts)
 router.post("/create/")(create_post)
 # Маршрут для создания нового поста.
 # Когда клиент отправляет POST-запрос на путь "/posts/create/",

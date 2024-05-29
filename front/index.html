@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Главная</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div>
+    <div id="posts">
+
+    </div>
+</div>
+<script>
+    const token = localStorage.getItem("access_token")
+    let div_posts = document.getElementById("posts")
+
+    const get_posts = async () => {
+        const response = await send(token)
+        const posts = (await response.json()).posts
+        for (let post of posts) {
+            let imgs = ``;
+            for (let image of post.images) {
+                imgs += `<img src="http://localhost:8000/api/v1/files/${image}" height="200px" width="200px"><br>`
+            }
+            const div_post = `<div>
+${imgs}
+${post.author_name}<br>
+${post.created_at}<br>
+${post.content}<br>
+</div>
+`
+            div_posts.innerHTML += div_post
+        }
+    }
+    const URL = "http://localhost:8000/api/v1/posts/"
+    const send = async (token) => {
+        return await fetch(URL, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + token
+            },
+        });
+    }
+    const check_token = () => {
+        const token = localStorage.getItem("access_token")
+    }
+    check_token()
+    get_posts()
+</script>
+</body>
+</html>

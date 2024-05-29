@@ -1,0 +1,66 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+}
+
+/*body: Устанавливает шрифт для всего документа, фоновый цвет и удаляет отступы и поля.*/
+
+div {
+    background-color: #ffffff;
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+}
+
+/*div: C белым фоном, центральным расположением, внутренними отступами и закругленными углами.*/
+h1 {
+    text-align: center;
+    color: #333333;
+}
+
+/*h1: Центрирует заголовок и задает цвет.*/
+p {
+    font-size: 14px;
+    color: #120c0c;
+    margin-bottom: 5px;
+}
+
+/*p: Задает размер шрифта и цвет текста для абзацев, и нижний отступ.*/
+
+input[type="text"], input[type="date"], input[type="password"] {
+    width: calc(100% - 22px);
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #dddddd;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+/*Задает ширину, внутренние отступы, нижний отступ, границу, закругленные углы и размер шрифта для текстовых полей.*/
+button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: rgb(58, 143, 230);
+    color: #ffffff;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+/*button: Задает ширину, внутренние отступы, убирает границу, устанавливает закругленные углы, фон, цвет текста и курсор.*/
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/*Эффект при наведении*/
+
+
+
+

@@ -67,12 +67,8 @@ app = FastAPI()
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
- запускаем тестируем в postman ( GET localhost:8000/)
-Получаем:
-{
-    "Hello": "World"
-}
 ```
+
 ## Описание API
 
 ### Регистрация пользователя

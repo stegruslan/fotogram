@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Авторизация</title>
+     <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div>
+    <h1>Авторизация</h1>
+    <p>Username</p>
+    <input type="text" id="username">
+    <p>Пароль</p>
+    <input type="password" id="password">
+    <button onclick="auth()">Войти</button>
+    <script>
+        const auth = async () => {
+            let username = document.getElementById("username").value
+            let password = document.getElementById("password").value
+            const form_data = new FormData()
+            form_data.append('username', username)
+            form_data.append('password', password)
+            const response = await send(form_data)
+            if (!response.ok) {
+                alert("Ошибка:\n" + (await response.json()).error)
+            } else {
+                const rep = await response.json()
+                console.log(rep)
+                localStorage.setItem("access_token",
+                    rep.access_token)
+                alert("Вы вошли!")
+            }
+        }
+        const URL = "http://localhost:8000/api/v1/users/login"
+        const send = async (data) => {
+            return await fetch(URL, {
+                method: 'POST',
+                body: data
+            });
+        }
+        const check_token = () => {
+            const token = localStorage.getItem("access_token")
+            if (token !== null) {
+                alert("Вы вошли!")
+            }
+        }
+
+        check_token()
+    </script>
+</div>
+</body>
+</html>

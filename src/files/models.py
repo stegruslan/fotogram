@@ -33,3 +33,6 @@ class FileModel(Base):
     # - back_populates указывает на атрибут images в модели Post,
     # который устанавливает обратное отношение.
     post: Mapped["Post"] = relationship("Post", back_populates="images")
+
+    def get_filename(self) -> str:
+        return f"{self.uuid}.{self.extension}"
