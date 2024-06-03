@@ -43,7 +43,10 @@ class Post(Base):
     # который устанавливает обратное отношение.
     author: Mapped["User"] = relationship("User", back_populates="posts")
 
+    # Связь с моделью Like.
     likes: Mapped[list["Like"]] = relationship("Like", back_populates="post")
+
+    # Связь с моделью Comment.
     comments: Mapped[list["Comment"]] = relationship("Comment",
                                                      back_populates="post")
 
@@ -109,6 +112,6 @@ class Comment(Base):
     # который устанавливает обратное отношение.
     post: Mapped["Post"] = relationship("Post", back_populates="comments")
 
+    content: Mapped[str]  # Содержимое комментария.
 
-    content: Mapped[str]
-    created_at: Mapped[datetime]
+    created_at: Mapped[datetime]  # Дата и время создания комментария.

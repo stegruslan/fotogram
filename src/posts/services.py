@@ -13,28 +13,97 @@ from database import session_factory
 from files.models import FileModel
 from posts.models import Like, Post, Comment
 from settings import settings
+from users.schemas import UserSchema
 from users.services import CurrentUser
 from posts.schemas import CommentInputSchema, CommentSchema, PostSchema, \
-    ResponsePostsSchema
+    ResponsePostsSchema, CommentWithUserSchema, CommentsOutputSchema
 
 
 def get_posts(current_user: CurrentUser) -> ResponsePostsSchema:
+    """
+        Получает все посты и возвращает их в виде схем.
+
+        Args:
+            current_user (CurrentUser): Текущий пользователь.
+
+        Returns:
+            ResponsePostsSchema: Схема с информацией о постах.
+        """
     with session_factory() as session:
+        # Создание сессии для взаимодействия с базой данных
         posts = session.query(Post).options(selectinload(Post.images),
-                                            selectinload(Post.author)).all()
-        posts_schemas = [
+                                            # Загрузка изображений поста
+                                            selectinload(Post.author),
+                                            # Загрузка автора поста
+                                            selectinload(Post.likes)).all()
+        # Загрузка лайков поста
+
+        # Извлечение всех постов из базы данных
+        posts_schemas = [  # Формирование списка постов в виде схем
             PostSchema(
                 id=post.id,
                 images=list(
                     map(lambda x: x.get_filename(), post.images)),
-                content=post.content,
-                author_id=post.author.id,
-                author_name=post.author.fullname,
-                created_at=post.created_at,
+                # Список файлов изображений поста
+                content=post.content,  # Содержимое поста
+                author_id=post.author.id,  # ID автора поста
+                author_name=post.author.fullname,  # Имя автора поста
+                created_at=post.created_at,  # Дата создания поста
+                count_likes=len(post.likes),  # Количество лайков поста
+                liked=current_user.id in map(lambda x: x.user_id, post.likes),
+                # Проверка, лайкнул ли текущий пользователь этот пост
+                count_comments=len(post.comments)
+                # Количество комментариев поста
             )
-            for post in posts
+            for post in posts  # Итерирование по всем постам
         ]
         return ResponsePostsSchema(posts=posts_schemas)
+        # Возвращение схемы постов в виде ответа
+
+
+def get_comments(current_user: CurrentUser, post_id: int):
+    """
+        Получает все комментарии к посту и возвращает их в виде схем.
+
+        Args:
+            current_user (CurrentUser): Текущий пользователь.
+            post_id (int): Идентификатор поста.
+
+        Returns:
+            CommentsOutputSchema: Схема с информацией о комментариях.
+        """
+    with session_factory() as session:
+        # Создание сессии для взаимодействия с базой данных
+        comments = session.query(Comment).options(
+            selectinload(Comment.user)).filter(
+            Comment.post_id == post_id).all()
+        # Извлечение всех комментариев к посту из базы данных с загрузкой пользователя
+        comments_schemas = [  # Формирование списка комментариев в виде схем
+            CommentWithUserSchema(
+                id=comment.id,
+                user=UserSchema(username=comment.user.username,
+                                # Имя пользователя
+                                fullname=comment.user.fullname,
+                                # Полное имя пользователя
+                                birthday=comment.user.birthday,
+                                # Дата рождения пользователя
+                                signup_at=comment.user.signup_at,
+                                # Дата регистрации пользователя
+                                last_activity=comment.user.last_activity,
+                                # Последняя активность пользователя
+                                bio=comment.user.bio,  # Биография пользователя
+                                avatar=comment.user.avatar),
+                                # Аватар пользователя
+                post_id=post_id,  # ID поста
+                content=comment.content,  # Содержимое комментария
+                created_at=comment.created_at,  # Дата создания комментария
+                owner=current_user == comment.user,
+                # Проверка, является ли текущий пользователь автором комментария
+            )
+            for comment in comments  # Итерирование по всем комментариям
+        ]
+        return CommentsOutputSchema(
+            comments=comments_schemas)  # Возвращение схемы комментариев в виде ответа
 
 
 async def create_post(current_user: CurrentUser,

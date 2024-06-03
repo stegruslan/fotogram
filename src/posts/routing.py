@@ -1,12 +1,18 @@
 from fastapi import APIRouter
 
 from posts.services import create_post, like_post, create_comment, \
-    delete_comment, get_posts
+    delete_comment, get_posts, get_comments
 
 router = APIRouter(prefix="/posts", tags=["posts"])
 # Создаем экземпляр APIRouter с префиксом пути "/posts" и тегом "posts".
-
+router.get("/{post_id}/comments/")(get_comments)
+# Маршрут для получения комментариев к посту.
+# Когда клиент отправляет GET-запрос на путь "/posts/{post_id}/comments/",
+# вызывается функция get_comments.
 router.get("/")(get_posts)
+# Маршрут для получения всех постов.
+# Когда клиент отправляет GET-запрос на путь "/posts/",
+# вызывается функция get_posts.
 router.post("/create/")(create_post)
 # Маршрут для создания нового поста.
 # Когда клиент отправляет POST-запрос на путь "/posts/create/",
