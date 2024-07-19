@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создать пост</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Создать пост</h1>
+        <p>Заголовок:</p>
+        <input type="text" id="title" placeholder="Введите заголовок">
+
+        <p>Содержимое:</p>
+        <textarea id="content" placeholder="Введите содержимое поста"></textarea>
+
+        <p>Фото:</p>
+        <input type="file" id="photo" multiple>
+
+        <button onclick="createPost()">Опубликовать</button>
+    </div>
+
+    <script>
+        // Функция создания поста
+        const createPost = async () => {
+            const title = document.getElementById("title").value;
+            const content = document.getElementById("content").value;
+            const photos = document.getElementById("photo").files;
+            const token = localStorage.getItem("access_token");
+
+            if (!token) {
+                alert("Вы не авторизованы! Пожалуйста, войдите в систему.");
+                return;
+            }
+
+            if (!title.trim() || !content.trim()) {
+                alert("Пожалуйста, заполните все поля.");
+                return;
+            }
+
+            if (photos.length === 0) {
+                alert("Пожалуйста, добавьте хотя бы одно фото.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('content', content);
+
+            for (const photo of photos) {
+                formData.append('files', photo);
+            }
+
+            try {
+                const response = await fetch("http://localhost:8000/api/v1/posts/create", {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    alert("Ошибка при создании поста:\n" + errorData.detail);
+                } else {
+                    alert("Пост успешно создан!");
+                    document.getElementById("title").value = '';
+                    document.getElementById("content").value = '';
+                    document.getElementById("photo").value = '';
+                    location.replace("http://localhost:63342/fotogram/front/index.html")
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Произошла ошибка при создании поста. Пожалуйста, попробуйте еще раз.');
+            }
+        }
+    </script>
+</body>
+</html>

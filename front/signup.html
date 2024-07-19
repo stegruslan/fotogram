@@ -36,6 +36,7 @@
                 alert("Ошибка:\n" + (await response.json()).error)
             } else {
                 alert("Вы зарегистрированы!")
+                location.replace("http://localhost:63342/fotogram/front/auth.html")
             }
         }
         const URL = "http://localhost:8000/api/v1/users/signup"

@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title></title>
+</head>
+<body>
+<div>
+    <div id="posts">
+
+    </div>
+</div>
+<script>
+    let s = window.location.search
+    s = s.split(/[?&]/)
+    let params = {}
+    for (let str of s) {
+        str = str.split('=')
+        if (str.length === 2)
+            params[str[0]] = str[1]
+    }
+    const user_id = params.user_id
+
+
+    const token = localStorage.getItem("access_token")
+    let div_posts = document.getElementById("posts")
+
+    const get_posts_by_user = async () => {
+        const response = await send(token)
+        const posts = (await response.json()).posts
+        for (let post of posts) {
+            let imgs = ``;
+            for (let image of post.images) {
+                imgs += `<img src="http://localhost:8000/api/v1/files/${image}" height="200px" width="200px"><br>`
+            }
+            const div_post = `<div>
+${imgs}
+${post.author_name}<br>
+${post.created_at}<br>
+${post.content}<br>
+<span class="count_likes" id="count_likes${post.id}">${post.count_likes}</span> <button onclick="switch_like('like${post.id}')" class="like_button" id="like${post.id}">Лайк!</button>
+<div class="post_comments" id="post_comments${post.id}"><p style="color: blue;" class="count_comments" id="count_comments${post.id}" onclick="open_comments(${post.id})">Комментарии (${post.count_comments})</p>
+</div>
+</div>
+`
+            div_posts.innerHTML += div_post
+        }
+        check_likes(posts)
+    }
+    const URL = `http://localhost:8000/api/v1/posts?user_id=${user_id}`
+    const send = async (token) => {
+        return await fetch(URL, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + token
+            },
+        });
+    }
+    const check_token = () => {
+        const token = localStorage.getItem("access_token")
+    }
+    const check_likes = (posts) => {
+        let liked_posts_id = []
+        for (let post of posts)
+            if (post.liked)
+                liked_posts_id.push(post.id)
+        console.log(liked_posts_id)
+        const dom_likes = document.getElementsByClassName("like_button")
+        for (let dom_like of dom_likes) {
+            let id = dom_like.id
+            id = id.replace("like", "")
+            if (liked_posts_id.includes(Number(id))) {
+                add_like(dom_like, true)
+            }
+        }
+    }
+    const switch_like = (id) => {
+        let dom_like = document.getElementById(id)
+        if (dom_like.classList.contains("enabled"))
+            remove_like(dom_like)
+        else
+            add_like(dom_like)
+    }
+    const add_like = (dom_like, ignore_count = false) => {
+        let id = dom_like.id
+            id = id.replace("like", "")
+        dom_like.classList.add("enabled")
+        dom_like.innerHTML = "Убрать лайк"
+        let count_likes = document.getElementById("count_likes" + id)
+        if (!ignore_count) {
+            send_like(token, URL, id, true)
+            count_likes.innerHTML = String(Number(count_likes.innerHTML) + 1)
+        }
+    }
+    const remove_like = (dom_like) => {
+        let id = dom_like.id
+            id = id.replace("like", "")
+        send_like(token, URL, id, false)
+        dom_like.classList.remove("enabled")
+        dom_like.innerHTML = "Лайк!"
+        let count_likes = document.getElementById("count_likes" + id)
+        console.log(String(Number(count_likes.innerHTML) - 1))
+        count_likes.innerHTML = String(Number(count_likes.innerHTML) - 1)
+    }
+    const send_like = async (token, url, post_id, like) => {
+        url = url + `${post_id}/like/?like=${like}`
+        return await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token
+            },
+        });
+    }
+    const open_comments = async (post_id) => {
+        let div_comments = document.getElementById("post_comments"+post_id)
+        const response = await get_comments(token, URL, post_id)
+        let comments = (await response.json()).comments
+        div_comments.innerHTML = ""
+        for (let comment of comments) {
+            div_comments.innerHTML += `
+            ${comment.user.fullname} <br>
+            ${comment.created_at} <br> <br>
+            ${comment.content} <br> <br> <br>
+            `
+        }
+        div_comments.innerHTML += `
+<br>
+        <input type="text" id="text_comment${post_id}"> <button onclick="create_comment(${post_id})">Отправить!</button>
+        `
+    }
+    const create_comment = async (post_id) => {
+        const text = document.getElementById("text_comment"+post_id).value
+        console.log(text)
+        document.getElementById("text_comment"+post_id).value = ""
+        if (text !== "") {
+            await send_comment(token, URL, post_id, text)
+        }
+        await open_comments(post_id)
+    }
+    const send_comment = async (token, url, post_id, text) => {
+        url = url + `${post_id}/comments/create/`
+        return await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({content: text})
+        });
+    }
+    const get_comments = async (token, url, post_id) => {
+        url = url + `${post_id}/comments/`
+        return await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+            },
+        });
+    }
+    check_token()
+    get_posts_by_user()
+
+</script>
+</body>
+</html>

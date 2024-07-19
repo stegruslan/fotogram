@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Subscribe</title>
+</head>
+<body>
+    <button id="subscribeBtn" onclick="subscribe()">Подписаться</button>
+
+    <script>
+        async function subscribe() {
+            const userId = 1; // ID автора, на которого нужно подписаться
+            const token = 'your_jwt_token'; // JWT токен текущего пользователя
+
+            const response = await fetch(`/subscribe/${userId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                alert("Подписка оформлена!");
+            } else {
+                alert("Ошибка при оформлении подписки");
+            }
+        }
+    </script>
+</body>
+</html>
