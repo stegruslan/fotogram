@@ -91,7 +91,8 @@ def create_access_token(data: dict, expires_delta: int = 15):
     expire = datetime.now(timezone.utc) + timedelta(minutes=expires_delta)
     # Вычисляем время истечения токена,
     # путем добавления переданного количества минут к текущему времени
-    to_encode.update({"exp": expire})
+    to_encode.update({"exp": expire,
+                      "user_id": data["user_id"]})
     # Добавляем время истечения с данными,
     # которые будут закодированы в токене.
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY,
@@ -131,7 +132,7 @@ async def login_for_access_token(
 
     # Создаем токен доступа для аутентифицированного пользователя
     access_token = create_access_token(
-        data={"sub": user.username},
+        data={"sub": user.username, "user_id": user.id},
         # Помещаем имя пользователя в данные токена
         expires_delta=settings.ACCESS_TOKEN_EXPIRE_MINUTES
     )  # Указываем время жизни токена
@@ -340,3 +341,5 @@ def unsubscribe(current_user: CurrentUser, author_id: int) -> Response:
             session.commit()
         # Возвращаем ответ с кодом 200 (OK).
         return Response(status_code=status.HTTP_200_OK)
+
+

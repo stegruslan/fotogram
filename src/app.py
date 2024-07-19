@@ -10,6 +10,7 @@ from settings import settings
 from users.routing import router as users_router
 
 
+
 def create_app() -> FastAPI:
     # Если директория для файлов не существует, создаем её
     if not settings.PATH_FILES.is_dir():

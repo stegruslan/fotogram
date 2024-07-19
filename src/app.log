@@ -1,0 +1,38 @@
+2024-07-19 00:21:48,989 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/ruslan/.cache/pypoetry/virtualenvs/fotogram-Vy8WhYCt-py3.12/lib/python3.12/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-07-19 00:22:13,918 - INFO - Создание поста пользователем 1
+2024-07-19 00:22:13,920 - INFO - Пост создан с ID 1
+2024-07-19 00:22:13,921 - INFO - Файл сохранен: ../files/6a5cb11e-3a7d-4795-a21f-663abd4f30a3.png
+2024-07-19 00:22:13,925 - INFO - Изменения сохранены в базе данных
+2024-07-19 00:29:00,317 - INFO - Создание поста пользователем 3
+2024-07-19 00:29:00,319 - INFO - Пост создан с ID 2
+2024-07-19 00:29:00,319 - INFO - Файл сохранен: ../files/cf838364-f937-48a6-9c18-c6ae29e91875.png
+2024-07-19 00:29:00,324 - INFO - Изменения сохранены в базе данных
+2024-07-19 00:36:20,022 - INFO - Создание поста пользователем 1
+2024-07-19 00:36:20,024 - INFO - Пост создан с ID 3
+2024-07-19 00:36:20,024 - INFO - Файл сохранен: ../files/d9d4416a-c3d9-4a74-a862-90eb19028042.png
+2024-07-19 00:36:20,025 - INFO - Изменения сохранены в базе данных
+2024-07-19 00:39:10,112 - INFO - Создание поста пользователем 1
+2024-07-19 00:39:10,114 - INFO - Пост создан с ID 4
+2024-07-19 00:39:10,114 - INFO - Файл сохранен: ../files/374137d5-144b-4f7e-9259-59745f6c1c1b.jpeg
+2024-07-19 00:39:10,115 - INFO - Изменения сохранены в базе данных
+2024-07-19 22:27:07,264 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/ruslan/.cache/pypoetry/virtualenvs/fotogram-Vy8WhYCt-py3.12/lib/python3.12/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-07-19 23:11:35,360 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/ruslan/.cache/pypoetry/virtualenvs/fotogram-Vy8WhYCt-py3.12/lib/python3.12/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-07-19 23:12:46,338 - INFO - Создание поста пользователем 2
+2024-07-19 23:12:46,343 - INFO - Пост создан с ID 5
+2024-07-19 23:12:46,344 - INFO - Файл сохранен: ../files/74949680-3957-4fbe-9054-7a229c507755.jpg
+2024-07-19 23:12:46,347 - INFO - Изменения сохранены в базе данных

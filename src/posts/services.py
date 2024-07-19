@@ -1,25 +1,24 @@
 import uuid
 from datetime import datetime
 from typing import Annotated
-
-from sqlalchemy.orm import selectinload
-
-from posts.models import Like, Post, Comment
-from posts.schemas import CommentInputSchema, CommentSchema
-from fastapi import Form, UploadFile
-from starlette.responses import Response
+import logging
 from fastapi import Form, UploadFile, HTTPException
+from sqlalchemy.orm import selectinload
+from starlette.responses import Response
+
 from database import session_factory
 from files.models import FileModel
 from posts.models import Like, Post, Comment
-from settings import settings
-from users.schemas import UserSchema
-from users.services import CurrentUser
 from posts.schemas import CommentInputSchema, CommentSchema, PostSchema, \
     ResponsePostsSchema, CommentWithUserSchema, CommentsOutputSchema
+from settings import settings
+from users.models import User
+from users.schemas import UserSchema
+from users.services import CurrentUser
 
 
-def get_posts(current_user: CurrentUser) -> ResponsePostsSchema:
+def get_posts(current_user: CurrentUser,
+              user_id: int | None = None) -> ResponsePostsSchema:
     """
         Получает все посты и возвращает их в виде схем.
 
@@ -28,17 +27,23 @@ def get_posts(current_user: CurrentUser) -> ResponsePostsSchema:
 
         Returns:
             ResponsePostsSchema: Схема с информацией о постах.
+            :param current_user:
+            :param user_id:
         """
     with session_factory() as session:
         # Создание сессии для взаимодействия с базой данных
-        posts = session.query(Post).options(selectinload(Post.images),
-                                            # Загрузка изображений поста
-                                            selectinload(Post.author),
-                                            # Загрузка автора поста
-                                            selectinload(Post.likes)).all()
-        # Загрузка лайков поста
-
-        # Извлечение всех постов из базы данных
+        query = session.query(Post).options(
+            selectinload(Post.images),
+            # Загрузка изображений поста
+            selectinload(Post.author),
+            # Загрузка автора поста
+            selectinload(Post.likes))
+        if user_id:
+            user = session.query(User).filter(User.id == user_id).first()
+            if not user:
+                raise HTTPException(status_code=404, detail="User not found")
+            query = query.filter(Post.author_id == user_id)
+        posts = query.all()
         posts_schemas = [  # Формирование списка постов в виде схем
             PostSchema(
                 id=post.id,
@@ -93,7 +98,7 @@ def get_comments(current_user: CurrentUser, post_id: int):
                                 # Последняя активность пользователя
                                 bio=comment.user.bio,  # Биография пользователя
                                 avatar=comment.user.avatar),
-                                # Аватар пользователя
+                # Аватар пользователя
                 post_id=post_id,  # ID поста
                 content=comment.content,  # Содержимое комментария
                 created_at=comment.created_at,  # Дата создания комментария
@@ -104,6 +109,16 @@ def get_comments(current_user: CurrentUser, post_id: int):
         ]
         return CommentsOutputSchema(
             comments=comments_schemas)  # Возвращение схемы комментариев в виде ответа
+
+
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s',
+                    handlers=[
+                        logging.StreamHandler(),  # Вывод в консоль
+                        logging.FileHandler('app.log')  # Запись в файл
+                    ])
+
+logger = logging.getLogger(__name__)
 
 
 async def create_post(current_user: CurrentUser,
@@ -120,7 +135,7 @@ async def create_post(current_user: CurrentUser,
        Returns:
            None
        """
-
+    logger.info(f"Создание поста пользователем {current_user.id}")
     with session_factory() as session:
         # Создается сессия для взаимодействия с базой данных
         post = Post(content=content, created_at=datetime.now(),
@@ -130,6 +145,7 @@ async def create_post(current_user: CurrentUser,
         # Добавляет пост в сессию
         session.flush()
         # Сбрасывает изменения, чтобы получить идентификатор поста
+        logger.info(f"Пост создан с ID {post.id}")
         for file in files:
             # Итерирует по каждому файлу в списке файлов
             ext = file.filename.split('.')[-1]
@@ -144,6 +160,7 @@ async def create_post(current_user: CurrentUser,
             # Асинхронно читает содержимое файла
             with file_path.open(mode='wb') as f:
                 f.write(file_bytes)
+                logger.info(f"Файл сохранен: {file_path}")
                 # Открывает файл для записи в бинарном режиме
                 # и записывает содержимое
             file_model = FileModel(uuid=file_uuid, extension=ext,
@@ -153,6 +170,7 @@ async def create_post(current_user: CurrentUser,
             session.add(file_model)
             # Добавляет файл в сессию
         session.commit()
+        logger.info("Изменения сохранены в базе данных")
         # Коммитит все изменения в базе данных
 
 
