@@ -1,11 +1,11 @@
 import uuid
 from datetime import datetime
-from typing import Annotated
+from typing import Annotated, Optional
 import logging
-from fastapi import Form, UploadFile, HTTPException
+from fastapi import Form, UploadFile, HTTPException, Depends
 from sqlalchemy.orm import selectinload
 from starlette.responses import Response
-
+from users.models import Subscribe
 from database import session_factory
 from files.models import FileModel
 from posts.models import Like, Post, Comment
@@ -14,7 +14,64 @@ from posts.schemas import CommentInputSchema, CommentSchema, PostSchema, \
 from settings import settings
 from users.models import User
 from users.schemas import UserSchema
-from users.services import CurrentUser
+from users.services import CurrentUser, get_current_user, oauth2_scheme
+
+
+def get_posts_subscribes(current_user: CurrentUser, user_id: int | None = None) -> ResponsePostsSchema:
+    """
+    Получает посты только от пользователей, на которых подписан текущий пользователь.
+
+    Args:
+        current_user (CurrentUser): Текущий пользователь.
+        user_id (int | None): ID пользователя, чьи посты нужно получить (если указан).
+
+    Returns:
+        ResponsePostsSchema: Схема с информацией о постах.
+    """
+    with session_factory() as session:
+        # Получаем IDs пользователей, на которых подписан текущий пользователь
+        subscribed_users_ids = session.query(Subscribe.author_id).filter(
+            Subscribe.subscriber_id == current_user.id
+        ).subquery()
+
+        # Запрос постов от пользователей, на которых подписан текущий пользователь
+        query = session.query(Post).filter(
+            Post.author_id.in_(subscribed_users_ids)
+        ).options(
+            selectinload(Post.images),
+            selectinload(Post.author),
+            selectinload(Post.likes)
+        )
+
+        if user_id:
+            user = session.query(User).filter(User.id == user_id).first()
+            if not user:
+                raise HTTPException(status_code=404, detail="User not found")
+            if user_id not in [user.id for user in session.query(User).join(
+                    Subscribe,
+                    Subscribe.author_id == User.id
+                ).filter(
+                    Subscribe.subscriber_id == current_user.id
+                ).all()]:
+                raise HTTPException(status_code=403, detail="Not subscribed to this user")
+            query = query.filter(Post.author_id == user_id)
+
+        posts = query.all()
+        posts_schemas = [
+            PostSchema(
+                id=post.id,
+                images=list(map(lambda x: x.get_filename(), post.images)),
+                content=post.content,
+                author_id=post.author.id,
+                author_name=post.author.fullname,
+                created_at=post.created_at,
+                count_likes=len(post.likes),
+                liked=current_user.id in map(lambda x: x.user_id, post.likes),
+                count_comments=len(post.comments)
+            )
+            for post in posts
+        ]
+        return ResponsePostsSchema(posts=posts_schemas)
 
 
 def get_posts(current_user: CurrentUser,
@@ -43,6 +100,7 @@ def get_posts(current_user: CurrentUser,
             if not user:
                 raise HTTPException(status_code=404, detail="User not found")
             query = query.filter(Post.author_id == user_id)
+
         posts = query.all()
         posts_schemas = [  # Формирование списка постов в виде схем
             PostSchema(

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import text, ForeignKey
+from sqlalchemy import text, ForeignKey, Column, Integer
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -114,3 +114,15 @@ class Comment(Base):
     content: Mapped[str]  # Содержимое комментария.
 
     created_at: Mapped[datetime]  # Дата и время создания комментария.
+
+
+# class Subscribe(Base):
+#     __tablename__ = "subscribes"
+#
+#     subscriber_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+#     author_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+#
+#     subscriber = relationship("User", foreign_keys=[subscriber_id],
+#                               back_populates="subscribes")
+#     author = relationship("User", foreign_keys=[author_id],
+#                           back_populates="subscribers")

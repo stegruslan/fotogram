@@ -1,10 +1,11 @@
 from fastapi import APIRouter
 
 from posts.services import create_post, like_post, create_comment, \
-    delete_comment, get_posts, get_comments
+    delete_comment, get_posts, get_comments, get_posts_subscribes
 
 router = APIRouter(prefix="/posts", tags=["posts"])
 # Создаем экземпляр APIRouter с префиксом пути "/posts" и тегом "posts".
+router.get("/subscribes/")(get_posts_subscribes)
 router.get("/{post_id}/comments/")(get_comments)
 # Маршрут для получения комментариев к посту.
 # Когда клиент отправляет GET-запрос на путь "/posts/{post_id}/comments/",
@@ -29,3 +30,4 @@ router.delete("/{post_id}/comments/{comment_id}")(delete_comment)
 # Маршрут для удаления комментария.
 # Когда клиент отправляет DELETE-запрос на путь
 # "/posts/{post_id}/comments/{comment_id}", вызывается функция delete_comment.
+
