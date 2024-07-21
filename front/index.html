@@ -199,6 +199,7 @@ ${post.content}<br>
         check_likes(posts);
     };
 
+
     const URL = `http://localhost:8000/api/v1/posts/`;
     const send = async (token) => {
         return await fetch(URL, {
@@ -312,6 +313,18 @@ ${post.content}<br>
             }
         });
     };
+    const initializeSubscriptionButtons = (posts) => {
+    for (let post of posts) {
+        const button = document.getElementById(`subscribe${post.author_id}`);
+        if (post.is_subscribed) {
+            button.innerHTML = "Отписаться";
+            button.classList.add("subscribed");
+        } else {
+            button.innerHTML = "Подписаться";
+            button.classList.remove("subscribed");
+        }
+    }
+};
 
     const toggle_subscription = async (author_id) => {
         const button = document.getElementById(`subscribe${author_id}`);
