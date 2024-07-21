@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -16,6 +17,7 @@ class PostSchema(BaseModel):
     count_likes: int  # Кол-во лайков
     liked: bool
     count_comments: int
+    is_subscribed: Optional[bool] = None
 
 
 class ResponsePostsSchema(BaseModel):

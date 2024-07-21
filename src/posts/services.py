@@ -67,7 +67,11 @@ def get_posts_subscribes(current_user: CurrentUser, user_id: int | None = None) 
                 created_at=post.created_at,
                 count_likes=len(post.likes),
                 liked=current_user.id in map(lambda x: x.user_id, post.likes),
-                count_comments=len(post.comments)
+                count_comments=len(post.comments),
+                is_subscribed=post.author.id in [sub.author_id for sub in
+                                                 session.query(
+                                                     Subscribe).filter(
+                                                     Subscribe.subscriber_id == current_user.id).all()]
             )
             for post in posts
         ]
