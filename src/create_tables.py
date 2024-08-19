@@ -1,6 +1,6 @@
 from database import Base, engine, session_factory
 from users.models import *
-import app
+
 # Создание сессии базы данных
 with session_factory() as session:
     # Создание всех таблиц, определенных в моделях,
