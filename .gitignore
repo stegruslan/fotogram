@@ -3,5 +3,5 @@
 .idea
 .ruff_cache
 .env
-
+database-data
 **/__pycache__

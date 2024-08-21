@@ -10,8 +10,11 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
     restart: unless-stopped
+    volumes:
+      - ./database-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+
 
   frontend:
     image: nginx:latest

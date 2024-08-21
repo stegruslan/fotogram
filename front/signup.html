@@ -13,9 +13,9 @@
     <p>Полное имя</p>
     <input type="text" id="fullname">
     <p>Пароль</p>
-    <input type="text" id="password">
+    <input type="password" id="password">
     <p>Повторите пароль</p>
-    <input type="text" id="password_repeat">
+    <input type="password" id="password_repeat">
     <p>О себе</p>
     <input type="text" id="bio">
     <p>Дата рождения</p>
@@ -24,22 +24,40 @@
     <button onclick="reg()">Зарегистрироваться</button>
     <script>
         const reg = async () => {
-            let username = document.getElementById("username").value
-            let fullname = document.getElementById("fullname").value
-            let password = document.getElementById("password").value
-            let password_repeat = document.getElementById("password_repeat").value
-            let bio = document.getElementById("bio").value
-            let birthday = document.getElementById("birthday").value
-            const data = {username, fullname, password, password_repeat, bio, birthday}
-            const response = await send(data)
+            let username = document.getElementById("username").value;
+            let fullname = document.getElementById("fullname").value;
+            let password = document.getElementById("password").value;
+            let password_repeat = document.getElementById("password_repeat").value;
+            let bio = document.getElementById("bio").value;
+            let birthday = document.getElementById("birthday").value;
+
+            // Проверяем, что все поля заполнены
+            if (!username || !fullname || !password || !password_repeat) {
+                alert("Пожалуйста, заполните все обязательные поля.");
+                return;
+            }
+
+            // Проверяем совпадение паролей
+            if (password !== password_repeat) {
+                alert("Пароли не совпадают.");
+                return;
+            }
+
+            const data = { username, fullname, password, password_repeat, bio, birthday };
+            console.log("Отправляемые данные:", data);
+
+            const response = await send(data);
             if (!response.ok) {
-                alert("Ошибка:\n" + (await response.json()).error)
+                const errorData = await response.json();
+                console.error("Ошибка от сервера:", errorData);
+                alert("Ошибка:\n" + errorData.error);
             } else {
-                alert("Вы зарегистрированы!")
-                location.replace("http://localhost:63342/fotogram/front/auth.html")
+                alert("Вы зарегистрированы!");
+                location.replace("http://localhost:63342/fotogram/front/auth.html");
             }
         }
-        const URL = "http://localhost:8000/api/v1/users/signup"
+
+        const URL = "http://localhost:8000/api/v1/users/signup";
         const send = async (data) => {
             return await fetch(URL, {
                 method: 'POST',
