@@ -8,6 +8,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import jwt, JWTError
 from passlib.context import CryptContext
 from sqlalchemy import and_
+from sqlalchemy.exc import SQLAlchemyError
 
 from database import session_factory
 from settings import settings
@@ -212,35 +213,92 @@ async def read_users_me(
                         "%B %d, %Y"))
 
 
-def signup(ud: SignUpSchema) -> Response | UserSchema:
+# def signup(ud: SignUpSchema) -> Response | UserSchema:
+#     """
+#         Регистрирует нового пользователя.
+#
+#         Args:
+#             ud (SignUpSchema): Данные для регистрации.
+#
+#         Returns:
+#             Response | UserSchema:
+#             Ответ с ошибкой или данные зарегистрированного пользователя.
+#         """
+#
+#     if ud.password != ud.password_repeat:
+#         return Response(status_code=status.HTTP_400_BAD_REQUEST,
+#                         content=json.dumps({"error": "Passwords must match"}))
+#     # Проверяем, совпадают ли пароли
+#     with session_factory() as session:
+#         # Подключаемся к базе данных
+#         try:
+#             # Проверяем, существует ли пользователь с таким же именем
+#             old_user = session.query(User).filter_by(
+#                 username=ud.username).first()
+#             # Если пользователь уже существует, возвращаем ошибку
+#             if old_user is not None:
+#                 return Response(status_code=status.HTTP_400_BAD_REQUEST,
+#                                 content=json.dumps(
+#                                     {"error": "Username already taken"}))
+#             print(old_user)
+#             # Создаем нового пользователя с переданными данными
+#             user = User(
+#                 username=ud.username,
+#                 fullname=ud.fullname,
+#                 password=get_password_hash(ud.password),
+#                 birthday=ud.birthday,
+#                 bio=ud.bio,
+#                 signup_at=datetime.now(),
+#                 last_activity=datetime.now(),
+#             )
+#             # Обрабатываем исключение,
+#             # если произошла ошибка при создании пользователя
+#         except Exception as e:
+#             return Response(status_code=status.HTTP_400_BAD_REQUEST,
+#                             content=json.dumps(
+#                                 {"error": "Error creating user"}))
+#         # Если создание пользователя прошло успешно,
+#         # добавляем его в базу данных и сохраняем изменения
+#         else:
+#             session.add(user)
+#             session.commit()
+#             # Формируем объект данных пользователя для возврата
+#             ur = UserSchema(
+#                 id=user.id,
+#                 username=user.username,
+#                 fullname=user.fullname,
+#                 signup_at=user.signup_at,
+#                 bio=user.bio,
+#                 last_activity=user.last_activity,
+#                 avatar=user.avatar,
+#                 birthday=user.birthday,
+#             )
+#             # Возвращаем данные пользователя
+#             return ur
+
+def signup(ud: SignUpSchema):
     """
-        Регистрирует нового пользователя.
+    Регистрирует нового пользователя.
 
-        Args:
-            ud (SignUpSchema): Данные для регистрации.
+    Args:
+        ud (SignUpSchema): Данные для регистрации.
 
-        Returns:
-            Response | UserSchema:
-            Ответ с ошибкой или данные зарегистрированного пользователя.
-        """
+    Returns:
+        UserSchema: Данные зарегистрированного пользователя.
+    """
 
     if ud.password != ud.password_repeat:
-        return Response(status_code=status.HTTP_400_BAD_REQUEST,
-                        content=json.dumps({"error": "Passwords must match"}))
-    # Проверяем, совпадают ли пароли
-    with session_factory() as session:
-        # Подключаемся к базе данных
-        try:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="Passwords must match")
+
+    try:
+        with session_factory() as session:
             # Проверяем, существует ли пользователь с таким же именем
-            old_user = session.query(User).filter_by(
-                username=ud.username).first()
-            # Если пользователь уже существует, возвращаем ошибку
-            if old_user is not None:
-                return Response(status_code=status.HTTP_400_BAD_REQUEST,
-                                content=json.dumps(
-                                    {"error": "Username already taken"}))
-            print(old_user)
-            # Создаем нового пользователя с переданными данными
+            if session.query(User).filter_by(username=ud.username).first() is not None:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                    detail="Username already taken")
+
+            # Создаем нового пользователя
             user = User(
                 username=ud.username,
                 fullname=ud.fullname,
@@ -250,17 +308,10 @@ def signup(ud: SignUpSchema) -> Response | UserSchema:
                 signup_at=datetime.now(),
                 last_activity=datetime.now(),
             )
-            # Обрабатываем исключение,
-            # если произошла ошибка при создании пользователя
-        except Exception as e:
-            return Response(status_code=status.HTTP_400_BAD_REQUEST,
-                            content=json.dumps(
-                                {"error": "Error creating user"}))
-        # Если создание пользователя прошло успешно,
-        # добавляем его в базу данных и сохраняем изменения
-        else:
+
             session.add(user)
             session.commit()
+
             # Формируем объект данных пользователя для возврата
             ur = UserSchema(
                 id=user.id,
@@ -272,8 +323,16 @@ def signup(ud: SignUpSchema) -> Response | UserSchema:
                 avatar=user.avatar,
                 birthday=user.birthday,
             )
-            # Возвращаем данные пользователя
             return ur
+
+    except SQLAlchemyError as e:
+        # Ловим ошибки SQLAlchemy и возвращаем более детализированное сообщение
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="Error creating user")
+    except Exception as e:
+        # Ловим любые другие исключения
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="Unexpected error occurred")
 
 
 def subscribe(current_user: CurrentUser, author_id: int) -> Response:
