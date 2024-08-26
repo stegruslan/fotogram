@@ -1,4 +1,6 @@
 """Маршруты для пользователей."""
+from typing import List
+
 from fastapi import APIRouter
 
 import users.schemas
@@ -36,5 +38,5 @@ router.post("/{author_id}/unsubscribe/")(unsubscribe)
 router.post("/messages/", response_model=MessageResponse)(
     send_message)
 
-router.get("/messages/", response_model=MessageResponse)(
+router.get("/messages/", response_model=List[MessageResponse])(
     get_messages)
