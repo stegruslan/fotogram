@@ -75,3 +75,16 @@ class Subscribe(Base):
     # Отношение с пользователем, на которого подписаны
     author: Mapped[User] = relationship("User", foreign_keys=[author_id],
                                         back_populates="subscribes")
+
+
+class Message(Base):
+    """Модель отправки сообщений"""
+    __tablename__ = "messages"
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    sender_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    receiver_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    content: Mapped[str] = mapped_column()
+    timestamp: Mapped[datetime] = mapped_column(default=datetime.now)
+
+    sender: Mapped[User] = relationship("User", foreign_keys=[sender_id])
+    receiver: Mapped[User] = relationship("User", foreign_keys=[receiver_id])

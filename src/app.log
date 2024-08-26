@@ -138,3 +138,113 @@ Traceback (most recent call last):
     version = _bcrypt.__about__.__version__
               ^^^^^^^^^^^^^^^^^
 AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-08-24 22:06:16,689 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/ruslan/.cache/pypoetry/virtualenvs/fotogram-Vy8WhYCt-py3.12/lib/python3.12/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-08-24 22:07:01,458 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/ruslan/.cache/pypoetry/virtualenvs/fotogram-Vy8WhYCt-py3.12/lib/python3.12/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-08-24 22:43:45,477 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/ruslan/.cache/pypoetry/virtualenvs/fotogram-Vy8WhYCt-py3.12/lib/python3.12/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-08-25 09:12:33,070 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/ruslan/.cache/pypoetry/virtualenvs/fotogram-Vy8WhYCt-py3.12/lib/python3.12/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-08-25 10:02:38,990 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/ruslan/.cache/pypoetry/virtualenvs/fotogram-Vy8WhYCt-py3.12/lib/python3.12/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-08-25 10:10:04,372 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/ruslan/.cache/pypoetry/virtualenvs/fotogram-Vy8WhYCt-py3.12/lib/python3.12/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-08-25 11:15:58,889 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/ruslan/.cache/pypoetry/virtualenvs/fotogram-Vy8WhYCt-py3.12/lib/python3.12/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-08-25 11:33:16,344 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/ruslan/.cache/pypoetry/virtualenvs/fotogram-Vy8WhYCt-py3.12/lib/python3.12/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-08-25 11:44:49,183 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/ruslan/.cache/pypoetry/virtualenvs/fotogram-Vy8WhYCt-py3.12/lib/python3.12/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-08-25 11:53:58,311 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/ruslan/.cache/pypoetry/virtualenvs/fotogram-Vy8WhYCt-py3.12/lib/python3.12/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-08-25 13:57:37,628 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/ruslan/.cache/pypoetry/virtualenvs/fotogram-Vy8WhYCt-py3.12/lib/python3.12/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-08-26 18:52:13,738 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/ruslan/.cache/pypoetry/virtualenvs/fotogram-Vy8WhYCt-py3.12/lib/python3.12/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-08-26 18:54:23,365 - INFO - Создание поста пользователем 1
+2024-08-26 18:54:23,370 - INFO - Пост создан с ID 9
+2024-08-26 18:54:23,371 - INFO - Файл сохранен: ../files/b56aebf9-8b5e-4974-87d4-1baba6440827.jpg
+2024-08-26 18:54:23,373 - INFO - Изменения сохранены в базе данных
+2024-08-26 19:12:34,010 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/ruslan/.cache/pypoetry/virtualenvs/fotogram-Vy8WhYCt-py3.12/lib/python3.12/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-08-26 19:45:01,888 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/ruslan/.cache/pypoetry/virtualenvs/fotogram-Vy8WhYCt-py3.12/lib/python3.12/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-08-26 20:20:38,812 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/ruslan/.cache/pypoetry/virtualenvs/fotogram-Vy8WhYCt-py3.12/lib/python3.12/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-08-26 20:33:23,433 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/ruslan/.cache/pypoetry/virtualenvs/fotogram-Vy8WhYCt-py3.12/lib/python3.12/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-08-26 20:37:03,398 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/ruslan/.cache/pypoetry/virtualenvs/fotogram-Vy8WhYCt-py3.12/lib/python3.12/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-08-26 20:39:46,042 - INFO - Создание поста пользователем 5
+2024-08-26 20:39:46,047 - INFO - Пост создан с ID 10
+2024-08-26 20:39:46,048 - INFO - Файл сохранен: ../files/bb90d53f-3b3f-491d-9b95-727b8078c0a0.jpg
+2024-08-26 20:39:46,051 - INFO - Изменения сохранены в базе данных

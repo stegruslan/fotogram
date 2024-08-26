@@ -2,17 +2,20 @@
 import json
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
-from fastapi import status, HTTPException, Depends
+from fastapi import status, HTTPException, Depends, WebSocket, \
+    WebSocketDisconnect
 from fastapi.responses import Response
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import jwt, JWTError
 from passlib.context import CryptContext
 from sqlalchemy import and_
 from sqlalchemy.exc import SQLAlchemyError
-
+from sqlalchemy.orm import Session
+from fastapi import Body
 from database import session_factory
 from settings import settings
-from .models import User, Subscribe
+from . import models, schemas
+from .models import User, Subscribe, Message
 from .schemas import SignUpSchema, UserSchema, Token
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -294,7 +297,8 @@ def signup(ud: SignUpSchema):
     try:
         with session_factory() as session:
             # Проверяем, существует ли пользователь с таким же именем
-            if session.query(User).filter_by(username=ud.username).first() is not None:
+            if session.query(User).filter_by(
+                username=ud.username).first() is not None:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                     detail="Username already taken")
 
@@ -402,3 +406,50 @@ def unsubscribe(current_user: CurrentUser, author_id: int) -> Response:
         return Response(status_code=status.HTTP_200_OK)
 
 
+
+
+def send_message(
+    message: schemas.MessageCreate,
+    current_user: models.User = Depends(get_current_user)
+):
+    with session_factory() as session:
+        # Проверяем, что текущий пользователь подписан на получателя
+        subscription_check = session.query(models.Subscribe).filter_by(
+            subscriber_id=current_user.id,
+            author_id=message.receiver_id
+        ).first()
+        #
+        if not subscription_check:
+            raise HTTPException(status_code=403,
+                                detail="Вы не подписаны на этого пользователя.")
+        #
+        # # Проверяем, что получатель подписан на отправителя
+        reverse_subscription_check = session.query(models.Subscribe).filter_by(
+            subscriber_id=message.receiver_id,
+            author_id=current_user.id
+        ).first()
+        #
+        if not reverse_subscription_check:
+            raise HTTPException(status_code=403,
+                                detail="Этот пользователь не подписан на вас.")
+        #
+        db_message = models.Message(
+            sender_id=current_user.id,
+            receiver_id=message.receiver_id,
+            content=message.content)
+
+        session.add(db_message)  # Используем сессию для добавления объекта
+        session.commit()  # Коммитим изменения
+        session.refresh(db_message)  # Обновляем объект из базы данных
+        return db_message  # Возвращаем объект
+
+
+def get_messages(
+    db: Session = Depends(session_factory),
+    current_user: models.User = Depends(get_current_user)
+):
+    messages = db.query(models.Message).filter(
+        (models.Message.sender_id == current_user.id) |
+        (models.Message.receiver_id == current_user.id)
+    ).order_by(models.Message.timestamp).all()
+    return messages

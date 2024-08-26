@@ -42,3 +42,19 @@ class RefreshToken(BaseModel):
     """Модель refresh token."""
     token: str
     expires_at: datetime  # дата и время истечения срока действия токена.
+
+
+class MessageCreate(BaseModel):
+    receiver_id: int
+    content: str
+
+
+class MessageResponse(BaseModel):
+    id: int
+    sender_id: int
+    receiver_id: int
+    content: str
+    timestamp: datetime
+
+    class Config:
+        orm_mode = True

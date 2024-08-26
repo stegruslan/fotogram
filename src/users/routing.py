@@ -1,8 +1,11 @@
 """Маршруты для пользователей."""
 from fastapi import APIRouter
 
-from users.schemas import UserSchema, Token
-from users.services import signup, login_for_access_token, read_users_me
+import users.schemas
+from users import schemas
+from users.schemas import UserSchema, Token, MessageCreate, MessageResponse
+from users.services import signup, login_for_access_token, read_users_me, \
+    send_message, get_messages
 from users.services import login_for_access_token, read_users_me, signup, \
     subscribe, unsubscribe
 
@@ -29,3 +32,9 @@ router.post("/{author_id}/subscribe/")(subscribe)
 router.post("/{author_id}/unsubscribe/")(unsubscribe)
 # Маршрут для отписки от автора (/users/{author_id}/unsubscribe/)
 # Функция unsubscribe будет вызываться при обращении к этому пути.
+
+router.post("/messages/", response_model=MessageResponse)(
+    send_message)
+
+router.get("/messages/", response_model=MessageResponse)(
+    get_messages)
