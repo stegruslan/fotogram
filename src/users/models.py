@@ -88,3 +88,14 @@ class Message(Base):
 
     sender: Mapped[User] = relationship("User", foreign_keys=[sender_id])
     receiver: Mapped[User] = relationship("User", foreign_keys=[receiver_id])
+
+
+class ChatMessage(Base):
+    """Модель чата между подписчиков"""
+    __tablename__ = "chat_messages"
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    sender_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    receiver_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+
+    sender: Mapped[User] = relationship("User", foreign_keys=[sender_id])
+    receiver: Mapped[User] = relationship("User", foreign_keys=[receiver_id])

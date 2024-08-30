@@ -432,3 +432,27 @@ button:hover {
         max-width: 100%;
     }
 }
+#chat_history {
+    display: flex;
+    flex-direction: column;
+    max-height: 300px; /* или любое другое значение, чтобы чат не занимал весь экран */
+    overflow-y: auto;
+}
+
+.message {
+    margin: 5px;
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 70%;
+    word-wrap: break-word;
+}
+
+.message.author {
+    background-color: #d3ffd3; /* Цвет фона для сообщений автора */
+    align-self: flex-start; /* Выравнивание сообщений автора влево */
+}
+
+.message.receiver {
+    background-color: #f1f1f1; /* Цвет фона для сообщений получателя */
+    align-self: flex-end; /* Выравнивание сообщений получателя вправо */
+}

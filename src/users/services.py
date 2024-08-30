@@ -216,69 +216,6 @@ async def read_users_me(
                         "%B %d, %Y"))
 
 
-# def signup(ud: SignUpSchema) -> Response | UserSchema:
-#     """
-#         Регистрирует нового пользователя.
-#
-#         Args:
-#             ud (SignUpSchema): Данные для регистрации.
-#
-#         Returns:
-#             Response | UserSchema:
-#             Ответ с ошибкой или данные зарегистрированного пользователя.
-#         """
-#
-#     if ud.password != ud.password_repeat:
-#         return Response(status_code=status.HTTP_400_BAD_REQUEST,
-#                         content=json.dumps({"error": "Passwords must match"}))
-#     # Проверяем, совпадают ли пароли
-#     with session_factory() as session:
-#         # Подключаемся к базе данных
-#         try:
-#             # Проверяем, существует ли пользователь с таким же именем
-#             old_user = session.query(User).filter_by(
-#                 username=ud.username).first()
-#             # Если пользователь уже существует, возвращаем ошибку
-#             if old_user is not None:
-#                 return Response(status_code=status.HTTP_400_BAD_REQUEST,
-#                                 content=json.dumps(
-#                                     {"error": "Username already taken"}))
-#             print(old_user)
-#             # Создаем нового пользователя с переданными данными
-#             user = User(
-#                 username=ud.username,
-#                 fullname=ud.fullname,
-#                 password=get_password_hash(ud.password),
-#                 birthday=ud.birthday,
-#                 bio=ud.bio,
-#                 signup_at=datetime.now(),
-#                 last_activity=datetime.now(),
-#             )
-#             # Обрабатываем исключение,
-#             # если произошла ошибка при создании пользователя
-#         except Exception as e:
-#             return Response(status_code=status.HTTP_400_BAD_REQUEST,
-#                             content=json.dumps(
-#                                 {"error": "Error creating user"}))
-#         # Если создание пользователя прошло успешно,
-#         # добавляем его в базу данных и сохраняем изменения
-#         else:
-#             session.add(user)
-#             session.commit()
-#             # Формируем объект данных пользователя для возврата
-#             ur = UserSchema(
-#                 id=user.id,
-#                 username=user.username,
-#                 fullname=user.fullname,
-#                 signup_at=user.signup_at,
-#                 bio=user.bio,
-#                 last_activity=user.last_activity,
-#                 avatar=user.avatar,
-#                 birthday=user.birthday,
-#             )
-#             # Возвращаем данные пользователя
-#             return ur
-
 def signup(ud: SignUpSchema):
     """
     Регистрирует нового пользователя.
@@ -406,42 +343,24 @@ def unsubscribe(current_user: CurrentUser, author_id: int) -> Response:
         return Response(status_code=status.HTTP_200_OK)
 
 
-
-
 def send_message(
     message: schemas.MessageCreate,
     current_user: models.User = Depends(get_current_user)
 ):
     with session_factory() as session:
-        # Проверяем, что текущий пользователь подписан на получателя
-        subscription_check = session.query(models.Subscribe).filter_by(
-            subscriber_id=current_user.id,
-            author_id=message.receiver_id
-        ).first()
-        #
-        if not subscription_check:
-            raise HTTPException(status_code=403,
-                                detail="Вы не подписаны на этого пользователя.")
-        #
-        # # Проверяем, что получатель подписан на отправителя
-        reverse_subscription_check = session.query(models.Subscribe).filter_by(
-            subscriber_id=message.receiver_id,
-            author_id=current_user.id
-        ).first()
-        #
-        if not reverse_subscription_check:
-            raise HTTPException(status_code=403,
-                                detail="Этот пользователь не подписан на вас.")
-        #
+        sender = session.query(User).filter_by(id=current_user.id).first()
+        if sender is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail="Author not found")
         db_message = models.Message(
             sender_id=current_user.id,
             receiver_id=message.receiver_id,
-            content=message.content)
-
-        session.add(db_message)  # Используем сессию для добавления объекта
-        session.commit()  # Коммитим изменения
-        session.refresh(db_message)  # Обновляем объект из базы данных
-        return db_message  # Возвращаем объект
+            content=message.content,
+        )
+        session.add(db_message)
+        session.commit()
+        session.refresh(db_message)
+        return db_message
 
 
 def get_messages(
@@ -453,3 +372,59 @@ def get_messages(
             (models.Message.receiver_id == current_user.id)
         ).order_by(models.Message.timestamp).all()
         return messages
+
+
+# def open_get_send_chat(
+#     current_user: models.User = Depends(get_current_user),
+#     chat: Chat
+# ):
+#     with session_factory() as session:
+#         history_messages = session.query(models.Message).filter(
+#             (models.Message.sender_id == current_user.id) |
+#             (models.Message.receiver_id == chat.receiver_id)
+#         ).order_by(models.Message.timestamp).all()
+#
+#         if not history_messages:
+#             new_chat = send_message(
+#                 message=schemas.MessageCreate(
+#                     receiver_id=chat.receiver_id,
+#                     content=chat.content
+#                 ),
+#                 current_user=current_user
+#             )
+#             return new_chat
+#
+#         return get_messages(current_user=current_user)
+
+def open_get_send_chat(
+    chat: schemas.Chat,
+    current_user: models.User = Depends(get_current_user)
+):
+    with session_factory() as session:
+        # Получаем историю сообщений между текущим пользователем и указанным получателем
+        history_messages = session.query(models.Message).filter(
+            (models.Message.sender_id == current_user.id) &
+            (models.Message.receiver_id == chat.receiver_id) |
+            (models.Message.sender_id == chat.receiver_id) &
+            (models.Message.receiver_id == current_user.id)
+        ).order_by(models.Message.timestamp).all()
+
+
+
+        # Если история сообщений пустая и есть содержимое для отправки, отправляем новое сообщение
+        if not history_messages and chat.content:
+            new_message = models.Message(
+                sender_id=current_user.id,
+                receiver_id=chat.receiver_id,
+                content=chat.content,
+                timestamp=datetime.now()
+                # Устанавливаем текущее время как временную метку сообщения
+            )
+            session.add(new_message)
+            session.commit()
+            session.refresh(new_message)
+            # Обновляем историю сообщений, добавляя только что отправленное сообщение
+            history_messages = [new_message]
+
+        # Возвращаем историю сообщений
+        return history_messages

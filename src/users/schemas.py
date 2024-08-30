@@ -58,3 +58,10 @@ class MessageResponse(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class Chat(BaseModel):
+    # id: int
+    sender_id: int
+    receiver_id: int
+    content: str
