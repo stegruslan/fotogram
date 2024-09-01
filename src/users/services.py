@@ -5,6 +5,7 @@ from typing import Annotated, List
 from fastapi import status, HTTPException, Depends, WebSocket, \
     WebSocketDisconnect
 from fastapi.responses import Response
+from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import jwt, JWTError
 from passlib.context import CryptContext
@@ -16,7 +17,8 @@ from database import session_factory
 from settings import settings
 from . import models, schemas
 from .models import User, Subscribe, Message, ChatMessage
-from .schemas import SignUpSchema, UserSchema, Token, ChatResponse
+from .schemas import SignUpSchema, UserSchema, Token, ChatResponse, \
+    UserResponse
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 # Объект для хэширования паролей.
@@ -211,9 +213,12 @@ async def read_users_me(
         Returns:
             Response: Ответ с информацией о пользователе.
         """
-    return Response(status_code=200,
-                    content=current_user.fullname + " " + current_user.birthday.strftime(
-                        "%B %d, %Y"))
+    user_data = UserResponse(
+        user_id=current_user.id,
+        fullname=current_user.fullname,
+        birthday=current_user.birthday.strftime("%B %d, %Y")
+    )
+    return JSONResponse(content=user_data.dict())
 
 
 def signup(ud: SignUpSchema):

@@ -74,3 +74,7 @@ class ChatResponse(BaseModel):
     last_message_content: str
 
 
+class UserResponse(BaseModel):
+    user_id: int
+    fullname: str
+    birthday: str
