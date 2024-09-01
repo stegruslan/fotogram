@@ -1,7 +1,7 @@
 """Функции для обработки запросов."""
 import json
 from datetime import datetime, timedelta, timezone
-from typing import Annotated
+from typing import Annotated, List
 from fastapi import status, HTTPException, Depends, WebSocket, \
     WebSocketDisconnect
 from fastapi.responses import Response
@@ -15,8 +15,8 @@ from fastapi import Body
 from database import session_factory
 from settings import settings
 from . import models, schemas
-from .models import User, Subscribe, Message
-from .schemas import SignUpSchema, UserSchema, Token
+from .models import User, Subscribe, Message, ChatMessage
+from .schemas import SignUpSchema, UserSchema, Token, ChatResponse
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 # Объект для хэширования паролей.
@@ -374,27 +374,7 @@ def get_messages(
         return messages
 
 
-# def open_get_send_chat(
-#     current_user: models.User = Depends(get_current_user),
-#     chat: Chat
-# ):
-#     with session_factory() as session:
-#         history_messages = session.query(models.Message).filter(
-#             (models.Message.sender_id == current_user.id) |
-#             (models.Message.receiver_id == chat.receiver_id)
-#         ).order_by(models.Message.timestamp).all()
-#
-#         if not history_messages:
-#             new_chat = send_message(
-#                 message=schemas.MessageCreate(
-#                     receiver_id=chat.receiver_id,
-#                     content=chat.content
-#                 ),
-#                 current_user=current_user
-#             )
-#             return new_chat
-#
-#         return get_messages(current_user=current_user)
+
 
 def open_get_send_chat(
     chat: schemas.Chat,
@@ -408,8 +388,6 @@ def open_get_send_chat(
             (models.Message.sender_id == chat.receiver_id) &
             (models.Message.receiver_id == current_user.id)
         ).order_by(models.Message.timestamp).all()
-
-
 
         # Если история сообщений пустая и есть содержимое для отправки, отправляем новое сообщение
         if not history_messages and chat.content:
@@ -428,3 +406,68 @@ def open_get_send_chat(
 
         # Возвращаем историю сообщений
         return history_messages
+
+
+def get_user_name(user_id: int) -> str:
+    with session_factory() as session:
+        user = session.query(models.User).filter(
+            models.User.id == user_id).one_or_none()
+        if user:
+            return schemas.UserSchema(
+                username=user.username,
+                fullname=user.fullname,
+                birthday=user.birthday,
+                signup_at=user.signup_at,
+                last_activity=user.last_activity,
+                bio=user.bio,
+                avatar=user.avatar
+            )
+        else:
+            raise HTTPException(status_code=404, detail="User not found")
+
+
+def get_all_chats(
+    current_user: models.User = Depends(get_current_user)
+):
+    with session_factory() as session:
+        # Получаем все сообщения, отправленные и полученные текущим пользователем
+        chats_query = session.query(
+            models.Message.receiver_id,
+            models.Message.sender_id,
+            models.Message.content.label('last_message_content'),
+            models.Message.timestamp.label('last_message_time')
+        ).filter(
+            (models.Message.sender_id == current_user.id) |
+            (models.Message.receiver_id == current_user.id)
+        ).order_by(models.Message.timestamp.desc())
+
+        # Группируем сообщения по чату
+        chats = {}
+        for message in chats_query.all():
+            # Определяем идентификатор чата
+            chat_id = (message.sender_id, message.receiver_id) \
+                if message.sender_id != current_user.id \
+                else (message.receiver_id, message.sender_id)
+
+            # Сохраняем последнее сообщение для данного чата
+            if chat_id not in chats:
+                chats[chat_id] = {
+                    'receiver_id': chat_id[1] if chat_id[
+                                                     0] == current_user.id else
+                    chat_id[0],
+                    'content': message.last_message_content,
+                    'timestamp': message.last_message_time
+                }
+
+        # Преобразуем чаты в список объектов сообщений
+        chat_list = [
+            models.Message(
+                sender_id=current_user.id,
+                receiver_id=chat['receiver_id'],
+                content=chat['content'],
+                timestamp=chat['timestamp']
+            )
+            for chat in chats.values()
+        ]
+
+        return chat_list

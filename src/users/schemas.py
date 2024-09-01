@@ -65,3 +65,12 @@ class Chat(BaseModel):
     sender_id: int
     receiver_id: int
     content: str
+
+
+class ChatResponse(BaseModel):
+    user_id: int
+    user_name: str
+    last_message_time: datetime
+    last_message_content: str
+
+

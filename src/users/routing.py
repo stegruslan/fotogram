@@ -7,7 +7,8 @@ import users.schemas
 from users import schemas
 from users.schemas import UserSchema, Token, MessageCreate, MessageResponse
 from users.services import signup, login_for_access_token, read_users_me, \
-    send_message, get_messages, open_get_send_chat
+    send_message, get_messages, open_get_send_chat, get_all_chats, \
+    get_user_name
 from users.services import login_for_access_token, read_users_me, signup, \
     subscribe, unsubscribe
 
@@ -43,3 +44,7 @@ router.get("/messages/", response_model=List[MessageResponse])(
 
 router.post("/chat/", response_model=list[schemas.MessageResponse])(
     open_get_send_chat)
+
+router.get("/chats/")(get_all_chats)
+
+router.get("/chats/{user_id}", response_model=UserSchema)(get_user_name)

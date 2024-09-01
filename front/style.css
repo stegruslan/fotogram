@@ -456,3 +456,18 @@ button:hover {
     background-color: #f1f1f1; /* Цвет фона для сообщений получателя */
     align-self: flex-end; /* Выравнивание сообщений получателя вправо */
 }
+header {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: #f0f0f0;
+}
+
+#open_chat_list {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}

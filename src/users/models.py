@@ -94,8 +94,11 @@ class ChatMessage(Base):
     """Модель чата между подписчиков"""
     __tablename__ = "chat_messages"
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    sender_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    receiver_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    sender_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    receiver_id: Mapped[int] = mapped_column(ForeignKey("users.id"),
+                                             index=True)
 
     sender: Mapped[User] = relationship("User", foreign_keys=[sender_id])
     receiver: Mapped[User] = relationship("User", foreign_keys=[receiver_id])
+
+
