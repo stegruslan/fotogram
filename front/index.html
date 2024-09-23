@@ -20,7 +20,7 @@
         for (let post of posts) {
             let imgs = ``;
             for (let image of post.images) {
-                imgs += `<img src="http://localhost:8000/api/v1/files/${image}" height="200px" width="200px"><br>`;
+                imgs += `<img src="http://localhost/api/v1/media_files/${image}" height="200px" width="200px"><br>`;
             }
             const isSubscribed = post.is_subscribed;
             const div_post = `<div>
@@ -40,7 +40,7 @@ ${post.content}<br>
     };
 
 
-    const URL = `http://localhost:8000/api/v1/posts/`;
+    const URL = `http://localhost/api/v1/posts/`;
     const send = async (token) => {
         return await fetch(URL, {
             method: 'GET',
@@ -155,7 +155,7 @@ ${post.content}<br>
         });
     };
     const del_comments = async (token, post_id) => {
-    const url = `http://localhost:8000/api/v1/posts/${post_id}/comments/{comment_id}`;
+    const url = `http://localhost/api/v1/posts/${post_id}/comments/{comment_id}`;
     return await fetch(url, {
         method: 'DELETE',
         headers: {
@@ -182,7 +182,7 @@ ${post.content}<br>
         const button = document.getElementById(`subscribe${author_id}`);
         const isSubscribed = button.classList.contains("subscribed");
 
-        const url = `http://localhost:8000/api/v1/users/${author_id}/` + (isSubscribed ? 'unsubscribe' : 'subscribe');
+        const url = `http://localhost/api/v1/users/${author_id}/` + (isSubscribed ? 'unsubscribe' : 'subscribe');
         const response = await fetch(url, {
             method: 'POST',
             headers: {

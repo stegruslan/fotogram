@@ -17,8 +17,9 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
+    REFRESH_TOKEN_EXPIRE_MINUTES: int
 
-    PATH_FILES_STR: str = "../files"
+    PATH_FILES_STR: str = "./media_files"
 
     PATH_FILES: Path = Path(PATH_FILES_STR)
 

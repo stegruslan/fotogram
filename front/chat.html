@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чаты</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div id="chat_window" style="display: none;">
+    <h1>Чат с: <span id="chat_with"></span></h1>
+    <div id="chat_history">
+        <div id="chat-container"></div>
+    </div>
+    <textarea id="message_content"></textarea>
+    <button id="send_button">Отправить сообщение</button>
+    <button onclick="closeChat()">Закрыть чат</button>
+</div>
+
+<div id="chat_list_window" style="display: none;">
+    <h2>Ваши чаты</h2>
+    <input type="text" placeholder="Поиск" id="search_chat" onkeyup="filterChats()">
+    <div id="chat_list"></div>
+    <button onclick="closeChatList()">Закрыть</button>
+</div>
+
+<script>
+    let currentUserId;
+    const token = localStorage.getItem("access_token");
+    let chatReceiverId;
+    let chatReceiverName;
+
+    if (!token) {
+        alert("Вы не авторизованы!");
+        window.location.href = 'login.html'; // Перенаправление на страницу логина
+    }
+
+    const fetchUserData = async () => {
+        const url = 'http://localhost/api/v1/users/test/';
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log("User data:", data);
+            return data;
+        } else {
+            console.error("Failed to fetch user data:", await response.text());
+        }
+    };
+
+    const getUserName = async (receiverId) => {
+        const response = await fetch(`http://localhost/api/v1/users/chats/${receiverId}/`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+        });
+
+        if (response.ok) {
+            const userData = await response.json();
+            console.log("User Data for ID", receiverId, ":", userData);
+            return userData.fullname;
+        } else {
+            console.error("Failed to fetch user data:", await response.text());
+            return "Unknown";
+        }
+    };
+
+    const loadChatList = async () => {
+        const chatListDiv = document.getElementById("chat_list");
+        const response = await fetch("http://localhost/api/v1/users/chats/", {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+        });
+
+        if (response.ok) {
+            const chats = await response.json();
+            chatListDiv.innerHTML = ""; // Очищаем предыдущий список чатов
+
+            for (let chat of chats) {
+                const userName = await getUserName(chat.receiver_id);
+                chatListDiv.innerHTML += `
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <span class="chat-user">${userName || 'Unknown'}</span>
+                    </div>
+                    <div class="chat-body">
+                        ${chat.content || 'No content'}
+                    </div>
+                    <button onclick="startChat(${chat.receiver_id}, '${userName || 'Unknown'}')">Открыть чат</button>
+                </div>`;
+            }
+        } else {
+            console.error("Failed to load chat list:", await response.text());
+        }
+    };
+
+    const loadChatHistory = async (receiverId, receiverName) => {
+        const response = await fetch("http://localhost/api/v1/users/chat/", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                receiver_id: receiverId,
+                sender_id: currentUserId,
+                content: ""
+            })
+        });
+        if (response.ok) {
+            const chatHistory = await response.json();
+            chatHistory.forEach(message => renderMessage(message));
+            const chatHistoryDiv = document.getElementById("chat_history");
+            chatHistoryDiv.innerHTML = ''; // Очищаем предыдущие сообщения
+
+            chatHistoryDiv.innerHTML = chatHistory.map(message => {
+                const isAuthor = message.sender_id === currentUserId;
+                return `
+            <div class="message ${isAuthor ? 'author' : 'receiver'}">
+                <p><strong>${isAuthor ? 'Вы' : receiverName}:</strong> ${message.content}</p>
+                <p><em>${new Date(message.timestamp).toLocaleString()}</em></p>
+            </div>
+        `;
+            }).join('');
+            chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight; // Прокручиваем к последнему сообщению
+        } else {
+            console.error("Failed to load chat history:", await response.text());
+        }
+    };
+
+
+    //     const renderMessage = (message) => {
+    //     const chatContainer = document.getElementById("chat-container");
+    //     const messageTime = new Date(message.timestamp);
+    //
+    //     // Определяем формат для локального времени
+    //     const formattedTime = messageTime.toLocaleString('ru-RU', {
+    //         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, // Берет текущую временную зону пользователя
+    //         hour: '2-digit',
+    //         minute: '2-digit',
+    //         second: '2-digit',
+    //         day: '2-digit',
+    //         month: '2-digit',
+    //         year: 'numeric',
+    //     });
+    //
+    //     // Проверяем, что chatContainer существует
+    //     if (!chatContainer) {
+    //         console.error("chat-container не найден.");
+    //         return;
+    //     }
+    //
+    //     const messageElement = document.createElement("div");
+    //
+    //     if (message.sender_id === currentUserId) {
+    //         messageElement.classList.add("my-message");
+    //         messageElement.innerHTML = `<p>Вы: ${message.content}</p><p>${formattedTime}</p>`;
+    //     } else {
+    //         messageElement.classList.add("other-message");
+    //         messageElement.innerHTML = `<p>${message.sender_name}: ${message.content}</p><p>${formattedTime}</p>`;
+    //     }
+    //
+    //     chatContainer.appendChild(messageElement);
+    // };
+    const startChat = (userId, userName) => {
+        chatReceiverId = userId;
+        chatReceiverName = userName;
+
+        document.getElementById("chat_with").innerText = userName; // Отображаем имя пользователя
+        document.getElementById("chat_window").style.display = 'block';
+        loadChatHistory(chatReceiverId, chatReceiverName); // Загружаем историю чата
+
+        document.getElementById("send_button").onclick = sendMessage; // Привязываем обработчик к кнопке
+    };
+    const renderMessage = (message) => {
+        const chatContainer = document.getElementById("chat-container");
+
+        // Предполагается, что message.timestamp в формате UTC
+        const messageTime = new Date(message.timestamp);
+
+        // Преобразуем время в локальное
+        const formattedTime = messageTime.toLocaleString('ru-RU', {
+            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, // Временная зона пользователя
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+        });
+
+        // Проверяем, что chatContainer существует
+        if (!chatContainer) {
+            console.error("chat-container не найден.");
+            return;
+        }
+
+        const messageElement = document.createElement("div");
+
+        if (message.sender_id === currentUserId) {
+            messageElement.classList.add("my-message");
+            messageElement.innerHTML = `<p>Вы: ${message.content}</p><p>${formattedTime}</p>`;
+        } else {
+            messageElement.classList.add("other-message");
+            messageElement.innerHTML = `<p>${message.sender_name}: ${message.content}</p><p>${formattedTime}</p>`;
+        }
+
+        chatContainer.appendChild(messageElement);
+    };
+
+
+    const sendMessage = async () => {
+        const content = document.getElementById("message_content").value;
+        if (!content) {
+            alert("Введите сообщение перед отправкой.");
+            return;
+        }
+
+        const response = await fetch("http://localhost/api/v1/users/messages/", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                receiver_id: chatReceiverId,
+                sender_id: currentUserId,
+                content: content
+            })
+        });
+
+        if (!response.ok) {
+            alert("Ошибка:\n" + (await response.json()).detail);
+        } else {
+            document.getElementById("message_content").value = ''; // Очистка поля ввода
+            await loadChatHistory(chatReceiverId, chatReceiverName); // Перезагрузка истории чата после отправки сообщения
+        }
+    };
+
+
+    const closeChat = () => {
+        document.getElementById("chat_window").style.display = 'none';
+    };
+
+    const openChatList = () => {
+        document.getElementById("chat_list_window").style.display = 'block';
+        loadChatList(); // Загружаем список чатов при открытии
+    };
+
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        const userData = await fetchUserData();
+        if (userData) {
+            currentUserId = Number(userData.user_id); // Устанавливаем currentUserId
+            console.log("Current User ID:", currentUserId);
+            localStorage.setItem("user_id", currentUserId);
+            openChatList(); // Открываем список чатов при загрузке
+        } else {
+            console.error("Не удалось получить данные пользователя.");
+        }
+    });
+</script>
+</body>
+</html>

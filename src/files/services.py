@@ -1,3 +1,5 @@
+import os
+
 from fastapi import HTTPException
 from starlette.responses import FileResponse
 
@@ -16,6 +18,7 @@ def get_file(filename: str) -> FileResponse:
             file_model = session.query(FileModel).filter(
                 FileModel.uuid == file_uuid).first()
             # Ищет файл в базе данных по UUID
+            print(f" ВАЖНО!!! Attempting to read file from: {settings.PATH_FILES}")
             if not file_model or file_model.extension != ext:
                 # Проверяет, существует ли файл и совпадает ли расширение
                 raise HTTPException(status_code=404,
@@ -28,3 +31,6 @@ def get_file(filename: str) -> FileResponse:
         except ValueError as e:
             raise HTTPException(status_code=404, detail='Bad filename')
             # Вызывает исключение HTTP 404, если формат имени файла неверный
+
+
+

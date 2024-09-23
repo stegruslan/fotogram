@@ -21,6 +21,7 @@
     <p>Дата рождения</p>
     <input type="date" id="birthday">
     <br>
+    <br>
     <button onclick="reg()">Зарегистрироваться</button>
     <script>
         const reg = async () => {
@@ -53,11 +54,11 @@
                 alert("Ошибка:\n" + errorData.error);
             } else {
                 alert("Вы зарегистрированы!");
-                location.replace("http://localhost:63342/fotogram/front/auth.html");
+                location.replace("http://localhost/auth.html");
             }
         }
 
-        const URL = "http://localhost:8000/api/v1/users/signup";
+        const URL = "http://localhost/api/v1/users/signup";
         const send = async (data) => {
             return await fetch(URL, {
                 method: 'POST',

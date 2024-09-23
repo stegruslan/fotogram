@@ -1,0 +1,7 @@
+**
+
+!pyproject.toml
+!poetry.lock
+!frontend.conf
+!front/**
+!src/**

@@ -1,7 +1,7 @@
 """Функции для обработки запросов."""
 import json
 from datetime import datetime, timedelta, timezone
-from typing import Annotated, List
+from typing import Annotated, List, Optional
 from fastapi import status, HTTPException, Depends, WebSocket, \
     WebSocketDisconnect
 from fastapi.responses import Response
@@ -109,6 +109,17 @@ def create_access_token(data: dict, expires_delta: int = 15):
     # Возвращаем закодированный JWT
 
 
+def create_refresh_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=expires_delta)
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire, "type": "refresh"})
+    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    return encoded_jwt
+
+
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> Token:
@@ -140,10 +151,12 @@ async def login_for_access_token(
     access_token = create_access_token(
         data={"sub": user.username, "user_id": user.id},
         # Помещаем имя пользователя в данные токена
-        expires_delta=settings.ACCESS_TOKEN_EXPIRE_MINUTES
-    )  # Указываем время жизни токена
+        expires_delta=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    refresh_token = create_refresh_token(data={"sub": user.username, "user_id": user.id},
+        expires_delta=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     # Возвращаем токен доступа с указанием типа токена
-    return Token(access_token=access_token, token_type="bearer")
+    return Token(access_token=access_token, refresh_token=refresh_token,
+                 token_type="bearer")
 
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
@@ -377,8 +390,6 @@ def get_messages(
             (models.Message.receiver_id == current_user.id)
         ).order_by(models.Message.timestamp).all()
         return messages
-
-
 
 
 def open_get_send_chat(

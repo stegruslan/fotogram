@@ -31,17 +31,17 @@ class Token(BaseModel):
     """Токен доступа."""
     access_token: str
     token_type: str
-
+    refresh_token: str
 
 class TokenData(BaseModel):
     """Данные для размещения в токене."""
     username: str | None = None
 
 
-class RefreshToken(BaseModel):
-    """Модель refresh token."""
-    token: str
-    expires_at: datetime  # дата и время истечения срока действия токена.
+# class RefreshToken(BaseModel):
+#     """Модель refresh token."""
+#     token: str
+#     expires_at: datetime  # дата и время истечения срока действия токена.
 
 
 class MessageCreate(BaseModel):

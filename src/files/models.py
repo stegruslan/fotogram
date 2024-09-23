@@ -8,7 +8,7 @@ from database import Base
 
 
 class FileModel(Base):
-    __tablename__ = 'files'  # Имя таблицы в базе данных.
+    __tablename__ = 'media_files'  # Имя таблицы в базе данных.
 
     # Колонка uuid:
     # - Тип данных UUID.
@@ -32,7 +32,7 @@ class FileModel(Base):
     # - Связь с моделью Post.
     # - back_populates указывает на атрибут images в модели Post,
     # который устанавливает обратное отношение.
-    post: Mapped["Post"] = relationship("Post", back_populates="images")
+    post: Mapped['Post'] = relationship("Post", back_populates="images")
 
     def get_filename(self) -> str:
         return f"{self.uuid}.{self.extension}"

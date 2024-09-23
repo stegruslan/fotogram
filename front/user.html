@@ -5,12 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Посты на которых подписан</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
+<div class="sidebar">
+    <a href="http://localhost/user.html">
+        <span class="icon icon-home"></span>
+        <span class="text">Главная</span>
+    </a>
+
+    <a href="http://localhost/chat.html">
+        <span class="icon icon-add"></span>
+        <span class="text">Сообщения</span>
+    </a>
+    <a href="http://localhost/post_user_auth.html">
+        <span class="icon icon-notifications"></span>
+        <span class="text">Создать пост</span>
+    </a>
+    <a href="#">
+        <span class="icon icon-profile"></span>
+        <span class="text">Профиль</span>
+    </a>
+</div>
+
 <div id="posts"></div>
 <!-- Кнопка для открытия списка чатов -->
-<button id="open_chat_list" onclick="openChatList()">Чаты</button>
+
 <!-- Чатное окно -->
 
 <div id="chat_window" style="display: none;">
@@ -32,7 +52,7 @@
 </div>
 
 <script>
-
+<!--Фильтрует список чатов по введенному тексту, скрывая чаты, имена которых не содержат поисковую строку.-->
     const filterChats = () => {
         const searchInput = document.getElementById('search_chat').value.toLowerCase();
         const chatItems = document.querySelectorAll('#chat_list .chat-container');
@@ -51,8 +71,10 @@
     const token = localStorage.getItem("access_token");
     let div_posts = document.getElementById("posts");
 
+
+    // Запрашивает данные пользователя (например, ID) по API с использованием токена.
     const fetchUserData = async (token) => {
-        const url = 'http://localhost:8000/api/v1/users/test/';
+        const url = 'http://localhost/api/v1/users/test/';
         const response = await fetch(url, {
             method: 'GET',
             headers: {
@@ -86,20 +108,29 @@
     });
 
 
-
-
+    // Получает посты, на которые подписан текущий пользователь, через API.
     const fetchPosts = async (token) => {
-        const url = `http://localhost:8000/api/v1/posts/subscribes/`;
-        return await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Authorization': 'Bearer ' + token
-            },
-        });
-    };
+    const url = `http://localhost/api/v1/posts/subscribes/`;
+    return await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Authorization': 'Bearer ' + token
+        },
+    })
+    .then(response => {
+        console.log('Raw response:', response); // Логируем ответ
+        if (!response.ok) {
+            throw new Error('Failed to fetch posts');
+        }
+        return response.json(); // Если `response` корректен, возвращаем JSON
+    })
+    .catch(error => console.error('Error:', error));
+};
 
+
+    // Отправляет запрос для подписки или отписки от автора поста.
     const fetchSubscription = async (token, authorId, subscribe) => {
-        const url = `http://localhost:8000/api/v1/users/${authorId}/${subscribe ? 'subscribe/' : 'unsubscribe/'}`;
+        const url = `http://localhost/api/v1/users/${authorId}/${subscribe ? 'subscribe/' : 'unsubscribe/'}`;
         return await fetch(url, {
             method: 'POST',
             headers: {
@@ -109,6 +140,8 @@
         });
     };
 
+
+    // Отображает кнопки подписки/отписки для каждого поста, устанавливая их действия.
     const renderSubscriptionButtons = (posts) => {
         posts.forEach(post => {
             const button = document.getElementById(`subscribe${post["author_id"]}`);
@@ -132,6 +165,8 @@
         });
     };
 
+
+    // Обрабатывает подписку на автора, вызывая соответствующий API и обновляя посты.
     const subscribeToAuthor = async (authorId) => {
         const response = await fetchSubscription(token, authorId, true);
         if (response.ok) {
@@ -142,6 +177,8 @@
         }
     };
 
+
+    // Обрабатывает отписку от автора, аналогично.
     const unsubscribeFromAuthor = async (authorId) => {
         const response = await fetchSubscription(token, authorId, false);
         if (response.ok) {
@@ -157,62 +194,65 @@
     let chatReceiverName;
 
 
+    document.addEventListener("DOMContentLoaded", async () => {
+        const token = localStorage.getItem("access_token");
+        const userData = await fetchUserData(token);
 
-document.addEventListener("DOMContentLoaded", async () => {
-    const token = localStorage.getItem("access_token");
-    const userData = await fetchUserData(token);
+        if (userData) {
+            const user_id = userData.user_id;
+            console.log("Fetched user_id:", user_id);
+            localStorage.setItem("user_id", user_id);
 
-    if (userData) {
-        const user_id = userData.user_id;
-        console.log("Fetched user_id:", user_id);
-        localStorage.setItem("user_id", user_id);
-
-        // Преобразуем user_id в число
-        const storedUserId = Number(localStorage.getItem("user_id"));
-        console.log("User ID after fetching user data:", storedUserId);
-    }
-});
+            // Преобразуем user_id в число
+            const storedUserId = Number(localStorage.getItem("user_id"));
+            console.log("User ID after fetching user data:", storedUserId);
+        }
+    });
 
     const currentUserId = Number(localStorage.getItem("user_id"));
 
-const renderMessage = (message) => {
-    console.log("Rendering message:", message);  // Лог для отладки
-    const chatContainer = document.getElementById("chat-container");
 
-    if (!chatContainer) {
-        console.error("Chat container not found.");
-        return;
-    }
+    // Отображает сообщение в чате, различая сообщения от текущего пользователя и от собеседника.
+    const renderMessage = (message) => {
+        console.log("Rendering message:", message);  // Лог для отладки
+        const chatContainer = document.getElementById("chat-container");
 
-    // Создаем элемент сообщения
-    const messageElement = document.createElement("div");
+        // if (!chatContainer) {
+        //     console.error("Chat container not found.");
+        //     return;
+        // }
 
-    // Проверяем, кто отправил сообщение
-    if (message.sender_id === currentUserId) {
-        // Сообщение отправлено текущим пользователем, отображаем его слева
-        messageElement.classList.add("my-message");
-        messageElement.innerHTML = `
+        // Создаем элемент сообщения
+        const messageElement = document.createElement("div");
+
+        // Проверяем, кто отправил сообщение
+        if (message.sender_id === currentUserId) {
+            // Сообщение отправлено текущим пользователем, отображаем его слева
+            messageElement.classList.add("my-message");
+            messageElement.innerHTML = `
             <p>Вы: ${message.content}</p>
             <p>${new Date(message.timestamp).toLocaleString()}</p>
         `;
-    } else {
-        // Сообщение отправлено собеседником, отображаем его справа
-        messageElement.classList.add("other-message");
-        messageElement.innerHTML = `
+        } else {
+            // Сообщение отправлено собеседником, отображаем его справа
+            messageElement.classList.add("other-message");
+            messageElement.innerHTML = `
             <p>${message.sender_name}: ${message.content}</p>
             <p>${new Date(message.timestamp).toLocaleString()}</p>
         `;
-    }
+        }
 
-    // Добавляем элемент сообщения в контейнер чата
-    chatContainer.appendChild(messageElement);
-};
+        // Добавляем элемент сообщения в контейнер чата
+        chatContainer.appendChild(messageElement);
+    };
 
+
+    // Закрывает окно чата.
     const closeChat = () => {
         document.getElementById("chat_window").style.display = 'none';
     };
 
-
+    //  Отправляет сообщение собеседнику через API и очищает поле ввода.
     const sendMessage = async () => {
         const content = document.getElementById("message_content").value; // Получаем содержимое сообщения
 
@@ -221,7 +261,7 @@ const renderMessage = (message) => {
             return;
         }
 
-        const response = await fetch("http://localhost:8000/api/v1/users/messages/", {
+        const response = await fetch("http://localhost/api/v1/users/messages/", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -238,64 +278,68 @@ const renderMessage = (message) => {
             alert("Ошибка:\n" + (await response.json()).detail);
         } else {
             document.getElementById("message_content").value = ''; // Очистка поля ввода
-            loadChatHistory(chatReceiverId, chatReceiverName); // Перезагрузка истории чата после отправки сообщения
+            await loadChatHistory(chatReceiverId, chatReceiverName); // Перезагрузка истории чата после отправки сообщения
         }
     };
 
-const loadChatHistory = async (receiverId, receiverName) => {
-    if (isNaN(currentUserId)) {
-        console.error("Invalid currentUserId:", currentUserId);
-        return;
-    }
 
-    const response = await fetch("http://localhost:8000/api/v1/users/chat/", {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-            receiver_id: receiverId,
-            sender_id: currentUserId,
-            content: ""
-        })
-    });
+    // Загружает историю сообщений для текущего чата и отображает их.
+    const loadChatHistory = async (receiverId, receiverName) => {
+        if (isNaN(currentUserId)) {
+            console.error("Invalid currentUserId:", currentUserId);
+            return;
+        }
 
-    if (response.ok) {
-        const chatHistory = await response.json();
-        chatHistory.forEach(message => renderMessage(message));
-        const chatHistoryDiv = document.getElementById("chat_history");
-        chatHistoryDiv.innerHTML = ''; // Очищаем предыдущие сообщения
+        const response = await fetch("http://localhost/api/v1/users/chat/", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                receiver_id: receiverId,
+                sender_id: currentUserId,
+                content: ""
+            })
+        });
 
-        chatHistoryDiv.innerHTML = chatHistory.map(message => {
-            const isAuthor = message.sender_id === currentUserId;
-            return `
+        if (response.ok) {
+            const chatHistory = await response.json();
+            chatHistory.forEach(message => renderMessage(message));
+            const chatHistoryDiv = document.getElementById("chat_history");
+            chatHistoryDiv.innerHTML = ''; // Очищаем предыдущие сообщения
+
+            chatHistoryDiv.innerHTML = chatHistory.map(message => {
+                const isAuthor = message.sender_id === currentUserId;
+                return `
             <div class="message ${isAuthor ? 'author' : 'receiver'}">
                 <p><strong>${isAuthor ? 'Вы' : receiverName}:</strong> ${message.content}</p>
                 <p><em>${new Date(message.timestamp).toLocaleString()}</em></p>
             </div>
         `;
-        }).join('');
-        chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight; // Прокручиваем к последнему сообщению
-    } else {
-        console.error("Failed to load chat history:", await response.text());
-    }
-};
+            }).join('');
+            chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight; // Прокручиваем к последнему сообщению
+        } else {
+            console.error("Failed to load chat history:", await response.text());
+        }
+    };
 
+
+    // Инициализирует чат с выбранным пользователем, загружает историю сообщений.
     const startChat = (userId, userName) => {
-    console.log("Starting chat with:", userName);
-    chatReceiverId = userId;
-    chatReceiverName = userName;
+        console.log("Starting chat with:", userName);
+        chatReceiverId = userId;
+        chatReceiverName = userName;
 
-    document.getElementById("chat_with").innerText = userName;  // Отображаем имя пользователя
-    document.getElementById("chat_window").style.display = 'block';
-    loadChatHistory(chatReceiverId, chatReceiverName);
+        document.getElementById("chat_with").innerText = userName;  // Отображаем имя пользователя
+        document.getElementById("chat_window").style.display = 'block';
+        loadChatHistory(chatReceiverId, chatReceiverName);
 
-    // Устанавливаем интервал для обновления чата каждые 5 секунд
-    // setInterval(() => {
-    //     loadChatHistory(chatReceiverId, chatReceiverName);
-    // }, 5000);
-};
+        // Устанавливаем интервал для обновления чата каждые 5 секунд
+        // setInterval(() => {
+        //     loadChatHistory(chatReceiverId, chatReceiverName);
+        // }, 5000);
+    };
     // Функция для открытия окна списка чатов
     const openChatList = () => {
         document.getElementById("chat_list_window").style.display = 'block';
@@ -307,12 +351,12 @@ const loadChatHistory = async (receiverId, receiverName) => {
         document.getElementById("chat_list_window").style.display = 'none';
     };
 
-
+    // Загружает список чатов и отображает их в интерфейсе.
     const open_chats = async () => {
         let chatListDiv = document.getElementById("chat_list");
 
         try {
-            const response = await fetch("http://localhost:8000/api/v1/users/chats/", {
+            const response = await fetch("http://localhost/api/v1/users/chats/", {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -368,7 +412,7 @@ const loadChatHistory = async (receiverId, receiverName) => {
     // Функция для получения имени пользователя по receiver_id
     const getUserName = async (receiverId) => {
         try {
-            const response = await fetch(`http://localhost:8000/api/v1/users/chats/${receiverId}/`, {
+            const response = await fetch(`http://localhost/api/v1/users/chats/${receiverId}/`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -389,18 +433,18 @@ const loadChatHistory = async (receiverId, receiverName) => {
         }
     };
 
-
+    // Загружает посты текущего пользователя и отображает их на странице.
     const get_posts_by_user = async () => {
+
+        try {
         const response = await fetchPosts(token);
-        if (!response.ok) {
-            console.error("Failed to fetch posts");
-            return;
-        }
-        const posts = (await response.json()).posts;
+        console.log("Fetched response:", response);
+
+        const posts = (await response.posts);
 
         // Проверяем, есть ли посты
         if (posts.length === 0) {
-            window.location.href = 'http://localhost:63342/fotogram/front/index.html';
+            window.location.href = 'http://localhost/index.html';
             return;
         }
 
@@ -411,7 +455,7 @@ const loadChatHistory = async (receiverId, receiverName) => {
             for (let image of post.images) {
                 imgs += `
                     <div class="image-container">
-                        <img src="http://localhost:8000/api/v1/files/${image}" class="post-image">
+                        <img src="http://localhost/api/v1/media_files/${image}" class="post-image">
                     </div>
                 `;
             }
@@ -423,7 +467,7 @@ ${post.author_name}<br>
 <button class="subscribe_button" id="subscribe${post.author_id}">
 ${post.is_subscribed ? 'Отписаться' : 'Подписаться'}
 </button>
-<button class="chat_button" id="chat${post.author_id}">Чат</button><br>
+<button class="chat_button" id="chat${post.author_id}">Сообщение</button><br>
 ${formattedDateTime}<br>
 ${post.content}<br>
 <span class="count_likes" id="count_likes${post.id}">${post.count_likes}</span>
@@ -438,8 +482,11 @@ ${heartIcon}
         }
         renderSubscriptionButtons(posts);
         check_likes(posts);
+         } catch (error) {
+        console.error("Error while fetching posts:", error);
+    }
     };
-
+    // Проверяет, какие посты были лайкнуты, и обновляет отображение кнопок лайков.
     const check_likes = (posts) => {
         let liked_posts_id = [];
         for (let post of posts)
@@ -453,6 +500,7 @@ ${heartIcon}
         }
     };
 
+    // Добавляет лайк к посту, обновляя счетчик лайков.
     const add_like = (dom_like, ignore_count = false) => {
         let id = dom_like.id.replace("like", "");
         dom_like.classList.add("enabled");
@@ -463,7 +511,7 @@ ${heartIcon}
             count_likes.innerHTML = String(Number(count_likes.innerHTML) + 1);
         }
     };
-
+    //  Переключает лайк для поста (добавляет или удаляет).
     const switch_like = (id) => {
         let domLike = document.getElementById(id);
         if (!domLike) {
@@ -478,7 +526,7 @@ ${heartIcon}
             add_like(domLike);
         }
     };
-
+    // Удаляет лайк у поста и обновляет счетчик лайков.
     const remove_like = (dom_like) => {
         let id = dom_like.id.replace("like", "");
         sendLike(token, id, false);
@@ -487,9 +535,9 @@ ${heartIcon}
         let count_likes = document.getElementById("count_likes" + id);
         count_likes.innerHTML = String(Number(count_likes.innerHTML) - 1);
     };
-
+    // Отправляет запрос на добавление или удаление лайка через API.
     const sendLike = async (token, postId, like) => {
-        const url = `http://localhost:8000/api/v1/posts/${postId}/like/?like=${like}`;
+        const url = `http://localhost/api/v1/posts/${postId}/like/?like=${like}`;
         return await fetch(url, {
             method: 'POST',
             headers: {
@@ -497,7 +545,7 @@ ${heartIcon}
             },
         });
     };
-
+    // Форматирует дату и время в удобочитаемый формат.
     const formatDateTime = (isoDateTime) => {
         const date = new Date(isoDateTime);
         const options = {
@@ -511,7 +559,7 @@ ${heartIcon}
         };
         return date.toLocaleString('ru-RU', options);
     };
-
+    // Загружает и отображает комментарии к посту.
     const open_comments = async (post_id) => {
         let div_comments = document.getElementById("post_comments" + post_id);
         const response = await get_comments(token, post_id);
@@ -537,7 +585,7 @@ ${heartIcon}
         <input type="text" id="text_comment${post_id}"> <button onclick="create_comment(${post_id})">Отправить!</button>
         `;
     };
-
+    // Создает новый комментарий к посту и обновляет список комментариев.
     const create_comment = async (post_id) => {
         const text = document.getElementById("text_comment" + post_id).value;
         document.getElementById("text_comment" + post_id).value = "";
@@ -546,9 +594,9 @@ ${heartIcon}
         }
         await open_comments(post_id);
     };
-
+    // Отправляет комментарий к посту через API.
     const send_comment = async (token, post_id, text) => {
-        const url = `http://localhost:8000/api/v1/posts/${post_id}/comments/create/`;
+        const url = `http://localhost/api/v1/posts/${post_id}/comments/create/`;
         return await fetch(url, {
             method: 'POST',
             headers: {
@@ -560,7 +608,7 @@ ${heartIcon}
     };
 
     const get_comments = async (token, post_id) => {
-        const url = `http://localhost:8000/api/v1/posts/${post_id}/comments/`;
+        const url = `http://localhost/api/v1/posts/${post_id}/comments/`;
         return await fetch(url, {
             method: 'GET',
             headers: {
@@ -574,7 +622,7 @@ ${heartIcon}
             console.error("comment_id is undefined");
             return;
         }
-        const url = `http://localhost:8000/api/v1/posts/${post_id}/comments/${comment_id}`;
+        const url = `http://localhost/api/v1/posts/${post_id}/comments/${comment_id}`;
         console.log("DELETE URL:", url);
         const response = await fetch(url, {
             method: 'DELETE',

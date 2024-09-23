@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Создать пост</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
     <div class="container">
@@ -53,7 +53,7 @@
             }
 
             try {
-                const response = await fetch("http://localhost:8000/api/v1/posts/create", {
+                const response = await fetch("http://localhost/api/v1/posts/create", {
                     method: 'POST',
                     headers: {
                         'Authorization': 'Bearer ' + token
@@ -69,13 +69,14 @@
                     document.getElementById("title").value = '';
                     document.getElementById("content").value = '';
                     document.getElementById("photo").value = '';
-                    location.replace("http://localhost:63342/fotogram/front/index.html")
+                    location.href = "http://localhost/user.html";
                 }
             } catch (error) {
                 console.error('Error:', error);
                 alert('Произошла ошибка при создании поста. Пожалуйста, попробуйте еще раз.');
             }
         }
+          checkToken();
     </script>
 </body>
 </html>
