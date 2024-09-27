@@ -1,0 +1,318 @@
+
+/* Общие стили */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: #ffffff;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+#posts {
+    max-width: 600px;
+    width: 100%;
+    margin: 20px;
+    background-color: #fff;
+    border: 1px solid #dbdbdb;
+    border-radius: 3px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+div.post {
+    padding: 20px;
+    border-bottom: 1px solid #dbdbdb;
+}
+
+div.post:last-child {
+    border-bottom: none;
+}
+
+/* Изображение поста */
+.image-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.post-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 3px;
+}
+
+/* Информация об авторе */
+.post .author_name {
+    font-weight: bold;
+    color: #262626;
+    margin-bottom: 5px;
+}
+
+.post .author_name:hover {
+    text-decoration: underline;
+}
+
+/* Кнопка подписки */
+.subscribe_button {
+    background-color: #0095f6;
+    color: #fff;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    margin-top: 5px;
+}
+
+.subscribe_button.subscribed {
+    background-color: #8e8e8e;
+}
+
+.subscribe_button:hover {
+    background-color: #007bbd;
+}
+
+.subscribe_button.subscribed:hover {
+    background-color: #6e6e6e;
+}
+
+/* Лайки */
+.like_button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    margin-left: 10px;
+}
+
+.like_button.enabled {
+    color: #ed4956;
+}
+
+/* Комментарии */
+.post_comments {
+    margin-top: 10px;
+}
+
+.comment-container {
+    background-color: #fafafa;
+    padding: 10px;
+    border-radius: 3px;
+    margin-top: 10px;
+    border: 1px solid #dbdbdb;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #8e8e8e;
+    margin-bottom: 5px;
+}
+
+.comment-author {
+    font-weight: bold;
+    color: #262626;
+}
+
+.comment-body {
+    font-size: 14px;
+    color: #262626;
+}
+
+.delete-comment-button {
+    background-color: transparent;
+    border: none;
+    color: #ed4956;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.count_comments {
+    font-size: 14px;
+    cursor: pointer;
+    color: #262626;
+}
+
+.count_comments:hover {
+    text-decoration: underline;
+}
+
+/* Ввод комментария */
+/*input[type="text"] {*/
+/*    width: calc(100% - 100px);*/
+/*    padding: 8px;*/
+/*    margin: 5px 0;*/
+/*    border: 1px solid #dbdbdb;*/
+/*    border-radius: 3px;*/
+/*    font-size: 14px;*/
+/*    box-sizing: border-box;*/
+/*}*/
+
+button {
+    padding: 8px 10px;
+    background-color: #0095f6;
+    border: none;
+    border-radius: 3px;
+    color: #fff;
+    margin-bottom: 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #007bbd;
+}
+
+@media (max-width: 768px) {
+    #posts {
+        max-width: 100%;
+    }
+}
+
+#chat_history {
+    display: flex;
+    flex-direction: column;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.message {
+    margin: 5px;
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 70%;
+    word-wrap: break-word;
+}
+
+.message.author {
+    background-color: #d3ffd3; /* Цвет фона для сообщений автора */
+    align-self: flex-start; /* Выравнивание сообщений автора влево */
+}
+
+.message.receiver {
+    background-color: #f1f1f1; /* Цвет фона для сообщений получателя */
+    align-self: flex-end; /* Выравнивание сообщений получателя вправо */
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: #f0f0f0;
+}
+
+#open_chat_list {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+/* Сообщения текущего пользователя */
+.my-message {
+    text-align: left;
+    background-color: #e0ffe0;
+    margin-left: 10px;
+    margin-right: auto;
+    border-radius: 10px;
+    padding: 10px;
+    max-width: 60%;
+}
+
+/* Сообщения собеседника */
+.other-message {
+    text-align: right;
+    background-color: #f0f0f0;
+    margin-left: auto;
+    margin-right: 10px;
+    border-radius: 10px;
+    padding: 10px;
+    max-width: 60%;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    margin: 3px 0;
+    border: 1px solid #dbdbdb;
+    border-radius: 8px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+
+/*Для бокового меню*/
+
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100px;
+    height: 100vh;
+    background-color: white;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 40px;
+
+
+}
+
+.sidebar a {
+    text-decoration: none;
+    color: black;
+    margin: 40px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: color 0.3s;
+}
+
+.sidebar a:hover {
+    color: #0095f6; /* Цвет при наведении */
+}
+
+.sidebar a .icon {
+    font-size: 30px;
+}
+
+.sidebar a .text {
+    font-size: 12px;
+    margin-top: 10px;
+}
+
+/* Декоративные иконки можно заменить на изображения или иконки FontAwesome */
+.icon-home::before {
+    content: "🏠";
+}
+
+.icon-search::before {
+    content: "🔍";
+}
+
+.icon-add::before {
+    content: "➕";
+}
+
+.icon-notifications::before {
+    content: "🔔";
+}
+
+.icon-profile::before {
+    content: "👤";
+}
+
+/* Для контента страницы */
+.content {
+    margin-left: 70px;
+    padding: 20px;
+}
