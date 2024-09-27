@@ -33,7 +33,7 @@ def create_app() -> FastAPI:
 
 app = create_app()
 
-# Подключаем маршруты для управления пользователями,
+# Подключаем маршруты для управления пользователями,/
 # постами и файлами с префиксом "/api/v1"
 app.include_router(users_router, prefix="/api/v1", tags=["api/v1"])
 app.include_router(posts_router, prefix="/api/v1", tags=["api/v1"])
