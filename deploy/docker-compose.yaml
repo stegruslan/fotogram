@@ -1,25 +1,51 @@
-frontend:
-  image: stegruslan/latest
+#frontend:
+#  image: stegruslan/latest
+#
+#
+#  container_name: front
+#  ports:
+#    - "80:80"
+#  restart: unless-stopped
+#  networks:
+#    - app
+#
+#backend:
+#  image: stegruslan/latest
+#  container_name: backend
+#
+#
+#  env_file:
+#    - .env
+#  networks:
+#    - app
+#  volumes:
+#    - ./media_files:/opt/app/media_files
+#
+#networks:
+#  app:
+#    external: true
 
+version: '3'
 
-  container_name: front
-  ports:
-    - "80:80"
-  restart: unless-stopped
-  networks:
-    - app
+services:
+  frontend:
+    image: stegruslan/latest
+    container_name: front
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    networks:
+      - app
 
-backend:
-  image: stegruslan/latest
-  container_name: backend
-
-
-  env_file:
-    - .env
-  networks:
-    - app
-  volumes:
-    - ./media_files:/opt/app/media_files
+  backend:
+    image: stegruslan/latest
+    container_name: backend
+    env_file:
+      - .env
+    networks:
+      - app
+    volumes:
+      - ./media_files:/opt/app/media_files
 
 networks:
   app:
