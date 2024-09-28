@@ -29,7 +29,7 @@
 
 services:
   frontend:
-    image: stegruslan/latest
+    image: stegruslan/fotogram-frontend:latest
     container_name: front
     ports:
       - "80:80"
@@ -38,7 +38,7 @@ services:
       - app
 
   backend:
-    image: stegruslan/latest
+    image: stegruslan/fotogram-backend:latest
     container_name: backend
     env_file:
       - .env
