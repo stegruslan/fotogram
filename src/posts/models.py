@@ -37,7 +37,7 @@ class Post(Base):
                                                    back_populates="post")
 
     # Отношение author:
-    # - Связь с моделью User.
+    # - Связь с моделью User..
     # - back_populates указывает на атрибут posts в модели User,
     # который устанавливает обратное отношение.
     author: Mapped["User"] = relationship("User", back_populates="posts")

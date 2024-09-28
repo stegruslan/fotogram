@@ -9,7 +9,7 @@ from settings import settings
 
 
 def get_file(filename: str) -> FileResponse:
-    # Принимает имя файла и возвращает FileResponse
+    # Принимает имя файла и возвращает FileResponse.
     with session_factory() as session:
         # Создает сессию для взаимодействия с базой данных
         try:
