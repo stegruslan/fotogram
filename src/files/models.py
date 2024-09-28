@@ -8,7 +8,7 @@ from database import Base
 
 
 class FileModel(Base):
-    __tablename__ = 'media_files'  # Имя таблицы в базе данных.
+    __tablename__ = 'media_files'  # Имя таблицы в базе данных
 
     # Колонка uuid:
     # - Тип данных UUID.
