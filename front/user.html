@@ -9,16 +9,16 @@
 </head>
 <body>
 <div class="sidebar">
-    <a href="http://localhost/user.html">
+    <a href="http://51.250.18.211/user.html">
         <span class="icon icon-home"></span>
         <span class="text">Главная</span>
     </a>
 
-    <a href="http://localhost/chat.html">
+    <a href="http://51.250.18.211/chat.html">
         <span class="icon icon-add"></span>
         <span class="text">Сообщения</span>
     </a>
-    <a href="http://localhost/post_user_auth.html">
+    <a href="http://51.250.18.211/post_user_auth.html">
         <span class="icon icon-notifications"></span>
         <span class="text">Создать пост</span>
     </a>
@@ -74,7 +74,7 @@
 
     // Запрашивает данные пользователя (например, ID) по API с использованием токена.
     const fetchUserData = async (token) => {
-        const url = 'http://localhost/api/v1/users/test/';
+        const url = 'http://51.250.18.211/api/v1/users/test/';
         const response = await fetch(url, {
             method: 'GET',
             headers: {
@@ -110,7 +110,7 @@
 
     // Получает посты, на которые подписан текущий пользователь, через API.
     const fetchPosts = async (token) => {
-    const url = `http://localhost/api/v1/posts/subscribes/`;
+    const url = `http://51.250.18.211/api/v1/posts/subscribes/`;
     return await fetch(url, {
         method: 'GET',
         headers: {
@@ -130,7 +130,7 @@
 
     // Отправляет запрос для подписки или отписки от автора поста.
     const fetchSubscription = async (token, authorId, subscribe) => {
-        const url = `http://localhost/api/v1/users/${authorId}/${subscribe ? 'subscribe/' : 'unsubscribe/'}`;
+        const url = `http://51.250.18.211/api/v1/users/${authorId}/${subscribe ? 'subscribe/' : 'unsubscribe/'}`;
         return await fetch(url, {
             method: 'POST',
             headers: {
@@ -261,7 +261,7 @@
             return;
         }
 
-        const response = await fetch("http://localhost/api/v1/users/messages/", {
+        const response = await fetch("http://51.250.18.211/api/v1/users/messages/", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -290,7 +290,7 @@
             return;
         }
 
-        const response = await fetch("http://localhost/api/v1/users/chat/", {
+        const response = await fetch("http://51.250.18.211/api/v1/users/chat/", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -356,7 +356,7 @@
         let chatListDiv = document.getElementById("chat_list");
 
         try {
-            const response = await fetch("http://localhost/api/v1/users/chats/", {
+            const response = await fetch("http://51.250.18.211/api/v1/users/chats/", {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -412,7 +412,7 @@
     // Функция для получения имени пользователя по receiver_id
     const getUserName = async (receiverId) => {
         try {
-            const response = await fetch(`http://localhost/api/v1/users/chats/${receiverId}/`, {
+            const response = await fetch(`http://51.250.18.211/api/v1/users/chats/${receiverId}/`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -444,7 +444,7 @@
 
         // Проверяем, есть ли посты
         if (posts.length === 0) {
-            window.location.href = 'http://localhost/index.html';
+            window.location.href = 'http://51.250.18.211/index.html';
             return;
         }
 
@@ -455,7 +455,7 @@
             for (let image of post.images) {
                 imgs += `
                     <div class="image-container">
-                        <img src="http://localhost/api/v1/media_files/${image}" class="post-image">
+                        <img src="http://51.250.18.211/api/v1/media_files/${image}" class="post-image">
                     </div>
                 `;
             }
@@ -537,7 +537,7 @@ ${heartIcon}
     };
     // Отправляет запрос на добавление или удаление лайка через API.
     const sendLike = async (token, postId, like) => {
-        const url = `http://localhost/api/v1/posts/${postId}/like/?like=${like}`;
+        const url = `http://51.250.18.211/api/v1/posts/${postId}/like/?like=${like}`;
         return await fetch(url, {
             method: 'POST',
             headers: {
@@ -596,7 +596,7 @@ ${heartIcon}
     };
     // Отправляет комментарий к посту через API.
     const send_comment = async (token, post_id, text) => {
-        const url = `http://localhost/api/v1/posts/${post_id}/comments/create/`;
+        const url = `http://51.250.18.211/api/v1/posts/${post_id}/comments/create/`;
         return await fetch(url, {
             method: 'POST',
             headers: {
@@ -608,7 +608,7 @@ ${heartIcon}
     };
 
     const get_comments = async (token, post_id) => {
-        const url = `http://localhost/api/v1/posts/${post_id}/comments/`;
+        const url = `http://51.250.18.211/api/v1/posts/${post_id}/comments/`;
         return await fetch(url, {
             method: 'GET',
             headers: {
@@ -622,7 +622,7 @@ ${heartIcon}
             console.error("comment_id is undefined");
             return;
         }
-        const url = `http://localhost/api/v1/posts/${post_id}/comments/${comment_id}`;
+        const url = `http://51.250.18.211/api/v1/posts/${post_id}/comments/${comment_id}`;
         console.log("DELETE URL:", url);
         const response = await fetch(url, {
             method: 'DELETE',

@@ -17,7 +17,7 @@
     <button onclick="auth()">Войти</button>
     <br>
 
-    <a href="http://localhost/signup.html">Зарегистрироваться</a>
+    <a href="http://51.250.18.211/signup.html">Зарегистрироваться</a>
     <script>
         const auth = async () => {
             let username = document.getElementById("username").value
@@ -34,10 +34,10 @@
                 localStorage.setItem("access_token",
                     rep.access_token)
                 alert("Вы вошли!")
-                location.replace("http://localhost/user.html")
+                location.replace("http://51.250.18.211/user.html")
             }
         }
-        const URL = "http://localhost/api/v1/users/login"
+        const URL = "http://51.250.18.211/api/v1/users/login"
         const send = async (data) => {
             return await fetch(URL, {
                 method: 'POST',

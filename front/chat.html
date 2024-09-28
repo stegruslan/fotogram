@@ -36,7 +36,7 @@
     }
 
     const fetchUserData = async () => {
-        const url = 'http://localhost/api/v1/users/test/';
+        const url = 'http://51.250.18.211/api/v1/users/test/';
         const response = await fetch(url, {
             method: 'GET',
             headers: {
@@ -55,7 +55,7 @@
     };
 
     const getUserName = async (receiverId) => {
-        const response = await fetch(`http://localhost/api/v1/users/chats/${receiverId}/`, {
+        const response = await fetch(`http://51.250.18.211/api/v1/users/chats/${receiverId}/`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -75,7 +75,7 @@
 
     const loadChatList = async () => {
         const chatListDiv = document.getElementById("chat_list");
-        const response = await fetch("http://localhost/api/v1/users/chats/", {
+        const response = await fetch("http://51.250.18.211/api/v1/users/chats/", {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -106,7 +106,7 @@
     };
 
     const loadChatHistory = async (receiverId, receiverName) => {
-        const response = await fetch("http://localhost/api/v1/users/chat/", {
+        const response = await fetch("http://51.250.18.211/api/v1/users/chat/", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -139,40 +139,6 @@
         }
     };
 
-
-    //     const renderMessage = (message) => {
-    //     const chatContainer = document.getElementById("chat-container");
-    //     const messageTime = new Date(message.timestamp);
-    //
-    //     // Определяем формат для локального времени
-    //     const formattedTime = messageTime.toLocaleString('ru-RU', {
-    //         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, // Берет текущую временную зону пользователя
-    //         hour: '2-digit',
-    //         minute: '2-digit',
-    //         second: '2-digit',
-    //         day: '2-digit',
-    //         month: '2-digit',
-    //         year: 'numeric',
-    //     });
-    //
-    //     // Проверяем, что chatContainer существует
-    //     if (!chatContainer) {
-    //         console.error("chat-container не найден.");
-    //         return;
-    //     }
-    //
-    //     const messageElement = document.createElement("div");
-    //
-    //     if (message.sender_id === currentUserId) {
-    //         messageElement.classList.add("my-message");
-    //         messageElement.innerHTML = `<p>Вы: ${message.content}</p><p>${formattedTime}</p>`;
-    //     } else {
-    //         messageElement.classList.add("other-message");
-    //         messageElement.innerHTML = `<p>${message.sender_name}: ${message.content}</p><p>${formattedTime}</p>`;
-    //     }
-    //
-    //     chatContainer.appendChild(messageElement);
-    // };
     const startChat = (userId, userName) => {
         chatReceiverId = userId;
         chatReceiverName = userName;
@@ -227,7 +193,7 @@
             return;
         }
 
-        const response = await fetch("http://localhost/api/v1/users/messages/", {
+        const response = await fetch("http://51.250.18.211/api/v1/users/messages/", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

@@ -20,7 +20,7 @@
         for (let post of posts) {
             let imgs = ``;
             for (let image of post.images) {
-                imgs += `<img src="http://localhost/api/v1/media_files/${image}" height="200px" width="200px"><br>`;
+                imgs += `<img src="http://51.250.18.211/api/v1/media_files/${image}" height="200px" width="200px"><br>`;
             }
             const isSubscribed = post.is_subscribed;
             const div_post = `<div>
@@ -40,7 +40,7 @@ ${post.content}<br>
     };
 
 
-    const URL = `http://localhost/api/v1/posts/`;
+    const URL = `http://51.250.18.211/api/v1/posts/`;
     const send = async (token) => {
         return await fetch(URL, {
             method: 'GET',

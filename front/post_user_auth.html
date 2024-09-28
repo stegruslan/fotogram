@@ -53,7 +53,7 @@
             }
 
             try {
-                const response = await fetch("http://localhost/api/v1/posts/create", {
+                const response = await fetch("http://51.250.18.211/api/v1/posts/create", {
                     method: 'POST',
                     headers: {
                         'Authorization': 'Bearer ' + token
@@ -69,7 +69,7 @@
                     document.getElementById("title").value = '';
                     document.getElementById("content").value = '';
                     document.getElementById("photo").value = '';
-                    location.href = "http://localhost/user.html";
+                    location.href = "http://51.250.18.211/user.html";
                 }
             } catch (error) {
                 console.error('Error:', error);

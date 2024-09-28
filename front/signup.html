@@ -54,11 +54,11 @@
                 alert("Ошибка:\n" + errorData.error);
             } else {
                 alert("Вы зарегистрированы!");
-                location.replace("http://localhost/auth.html");
+                location.replace("http://51.250.18.211/auth.html");
             }
         }
 
-        const URL = "http://localhost/api/v1/users/signup";
+        const URL = "http://51.250.18.211/api/v1/users/signup";
         const send = async (data) => {
             return await fetch(URL, {
                 method: 'POST',
