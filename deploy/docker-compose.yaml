@@ -41,7 +41,7 @@ services:
     image: stegruslan/latest
     container_name: backend
     env_file:
-      - ./env
+      - ../.env
     networks:
       - app
     volumes:
