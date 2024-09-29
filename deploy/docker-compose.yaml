@@ -61,14 +61,14 @@ services:
     volumes:
       - ./media_files:/opt/app/media_files
 
-  migrations:
-    image: stegruslan/fotogram-backend:latest
-    container_name: migrations
-    env_file:
-      - .env
-#    command: alembic upgrade head
-    networks:
-      - app
+#  migrations:
+#    image: stegruslan/fotogram-backend:latest
+#    container_name: migrations
+#    env_file:
+#      - .env
+##    command: alembic upgrade head
+#    networks:
+#      - app
 
 networks:
   app:
