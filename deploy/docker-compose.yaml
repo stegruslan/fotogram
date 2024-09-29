@@ -42,6 +42,16 @@ services:
       - "5432:5432"
     networks:
       - app
+
+  migrations:
+    image: stegruslan/fotogram-backend:latest
+    container_name: migrations
+    env_file:
+      - .env
+    command: alembic upgrade head
+    networks:
+      - app
+
   frontend:
     image: stegruslan/fotogram-frontend:latest
     container_name: front
@@ -61,14 +71,7 @@ services:
     volumes:
       - ./media_files:/opt/app/media_files
 
-#  migrations:
-#    image: stegruslan/fotogram-backend:latest
-#    container_name: migrations
-#    env_file:
-#      - .env
-##    command: alembic upgrade head
-#    networks:
-#      - app
+
 
 networks:
   app:
