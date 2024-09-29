@@ -42,15 +42,28 @@ services:
       - "5432:5432"
     networks:
       - app
-
-  migrations:
+  backend:
     image: stegruslan/fotogram-backend:latest
-    container_name: migrations
+    container_name: backend
     env_file:
       - .env
-    command: alembic upgrade head
+    command: bash -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
     networks:
       - app
+    volumes:
+      - ./media_files:/opt/app/media_files
+    depends_on:
+      - postgres
+#  migrations:
+#    image: stegruslan/fotogram-backend:latest
+#    container_name: migrations
+#    env_file:
+#      - .env
+#    command: bash -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+#    networks:
+#      - app
+#    depends_on:
+#      - postgres
 
   frontend:
     image: stegruslan/fotogram-frontend:latest
@@ -61,15 +74,15 @@ services:
     networks:
       - app
 
-  backend:
-    image: stegruslan/fotogram-backend:latest
-    container_name: backend
-    env_file:
-      - .env
-    networks:
-      - app
-    volumes:
-      - ./media_files:/opt/app/media_files
+#  backend:
+#    image: stegruslan/fotogram-backend:latest
+#    container_name: backend
+#    env_file:
+#      - .env
+#    networks:
+#      - app
+#    volumes:
+#      - ./media_files:/opt/app/media_files
 
 
 
