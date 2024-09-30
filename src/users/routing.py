@@ -15,7 +15,7 @@ from users.services import login_for_access_token, read_users_me, signup, \
 router = APIRouter(prefix="/users", tags=["users"])
 router.post("/signup/", response_model=UserSchema)(signup)
 # Маршрут для регистрации нового пользователя (/users/signup/)
-# С указанием модели данных,
+# С указанием модели данных
 # которая будет возвращена в ответ на запрос (UserSchema)
 
 router.post("/login/", response_model=Token)(login_for_access_token)
