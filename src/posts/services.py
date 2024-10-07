@@ -17,10 +17,7 @@ from users.schemas import UserSchema
 from users.services import CurrentUser, get_current_user, oauth2_scheme
 
 MAX_FILE_SIZE = 6 * 1024 * 1024  # Максимальный размер файла  6 МБ
-
-
-def get_posts_subscribes(current_user: CurrentUser,
-                         user_id: int | None = None) -> ResponsePostsSchema:
+def get_posts_subscribes(current_user: CurrentUser, user_id: int | None = None) -> ResponsePostsSchema:
     """
     Получает посты только от пользователей, на которых подписан текущий пользователь.
 
@@ -51,13 +48,12 @@ def get_posts_subscribes(current_user: CurrentUser,
             if not user:
                 raise HTTPException(status_code=404, detail="User not found")
             if user_id not in [user.id for user in session.query(User).join(
-                Subscribe,
-                Subscribe.author_id == User.id
-            ).filter(
-                Subscribe.subscriber_id == current_user.id
-            ).all()]:
-                raise HTTPException(status_code=403,
-                                    detail="Not subscribed to this user")
+                    Subscribe,
+                    Subscribe.author_id == User.id
+                ).filter(
+                    Subscribe.subscriber_id == current_user.id
+                ).all()]:
+                raise HTTPException(status_code=403, detail="Not subscribed to this user")
             query = query.filter(Post.author_id == user_id)
 
         posts = query.all()
@@ -187,59 +183,6 @@ logging.basicConfig(level=logging.INFO,
 logger = logging.getLogger(__name__)
 
 
-# async def create_post(current_user: CurrentUser,
-#                       content: Annotated[str, Form()],
-#                       files: list[UploadFile]) -> None:
-#     """
-#        Создает новый пост с файлами.
-#
-#        Args:
-#            current_user (CurrentUser): Текущий пользователь.
-#            content (str): Содержимое поста.
-#            files (list[UploadFile]): Список файлов для загрузки.
-#
-#        Returns:
-#            None
-#        """
-#     logger.info(f"Создание поста пользователем {current_user.id}")
-#
-#     with session_factory() as session:
-#         # Создается сессия для взаимодействия с базой данных
-#         post = Post(content=content, created_at=datetime.now(),
-#                     author=current_user)
-#         # Создает объект поста с содержимым, текущей датой и автором
-#         session.add(post)
-#         # Добавляет пост в сессию
-#         session.flush()
-#         # Сбрасывает изменения, чтобы получить идентификатор поста
-#         logger.info(f"Пост создан с ID {post.id}")
-#         for file in files:
-#             # Итерирует по каждому файлу в списке файлов
-#             ext = file.filename.split('.')[-1]
-#             # Извлекает расширение файла
-#             file_uuid = uuid.uuid4()
-#             # Генерирует уникальный идентификатор для файла
-#             file_path = settings.PATH_FILES / (str(file_uuid) + "." + ext)
-#             # Формирует путь к файлу,
-#             # подставляя путь из настроек
-#             # с уникальным идентификатором и расширением
-#             file_bytes = await file.read()
-#             # Асинхронно читает содержимое файла
-#             with file_path.open(mode='wb') as f:
-#                 f.write(file_bytes)
-#                 logger.info(f"Файл сохранен: {file_path}")
-#                 # Открывает файл для записи в бинарном режиме
-#                 # и записывает содержимое
-#             file_model = FileModel(uuid=file_uuid, extension=ext,
-#                                    post_id=post.id)
-#             # Создает объект FileModel с UUID, расширением
-#             # и идентификатором поста
-#             session.add(file_model)
-#             # Добавляет файл в сессию
-#         session.commit()
-#         logger.info("Изменения сохранены в базе данных")
-#         # Коммитит все изменения в базе данных
-
 async def create_post(current_user: CurrentUser,
                       content: Annotated[str, Form()],
                       files: list[UploadFile]) -> None:
@@ -256,35 +199,42 @@ async def create_post(current_user: CurrentUser,
        """
     logger.info(f"Создание поста пользователем {current_user.id}")
 
-    for file in files:
-
-        contents = await file.read()
-        if len(contents) > MAX_FILE_SIZE:
-            raise HTTPException(status_code=413,
-                                detail="Размер файла превышает максимальный предел в 6 МБ.")
-        await file.seek(0)
-
     with session_factory() as session:
+        # Создается сессия для взаимодействия с базой данных
         post = Post(content=content, created_at=datetime.now(),
                     author=current_user)
+        # Создает объект поста с содержимым, текущей датой и автором
         session.add(post)
+        # Добавляет пост в сессию
         session.flush()
+        # Сбрасывает изменения, чтобы получить идентификатор поста
         logger.info(f"Пост создан с ID {post.id}")
-
         for file in files:
+            # Итерирует по каждому файлу в списке файлов
             ext = file.filename.split('.')[-1]
+            # Извлекает расширение файла
             file_uuid = uuid.uuid4()
+            # Генерирует уникальный идентификатор для файла
             file_path = settings.PATH_FILES / (str(file_uuid) + "." + ext)
+            # Формирует путь к файлу,
+            # подставляя путь из настроек
+            # с уникальным идентификатором и расширением
             file_bytes = await file.read()
+            # Асинхронно читает содержимое файла
             with file_path.open(mode='wb') as f:
                 f.write(file_bytes)
                 logger.info(f"Файл сохранен: {file_path}")
+                # Открывает файл для записи в бинарном режиме
+                # и записывает содержимое
             file_model = FileModel(uuid=file_uuid, extension=ext,
                                    post_id=post.id)
+            # Создает объект FileModel с UUID, расширением
+            # и идентификатором поста
             session.add(file_model)
-
+            # Добавляет файл в сессию
         session.commit()
         logger.info("Изменения сохранены в базе данных")
+        # Коммитит все изменения в базе данных
 
 
 def like_post(current_user: CurrentUser, post_id: int, like: bool) -> Response:
