@@ -7,22 +7,25 @@
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-<div id="chat_window" style="display: none;">
-    <h1>Чат с: <span id="chat_with"></span></h1>
-    <div id="chat_history">
-        <div id="chat-container"></div>
+<div class="container">
+    <div id="chat_list_window">
+        <h2>Ваши чаты</h2>
+<!--        <input type="text" placeholder="Поиск" id="search_chat" onkeyup="filterChats()">-->
+        <div id="chat_list"></div>
+        <button onclick="window.location.href='http://51.250.18.211/user.html'">Назад</button>
     </div>
-    <textarea id="message_content"></textarea>
-    <button id="send_button">Отправить сообщение</button>
-    <button onclick="closeChat()">Закрыть чат</button>
+
+    <div id="chat_window" style="display: none;">
+        <h1>Чат с: <span id="chat_with"></span></h1>
+        <div id="chat_history">
+            <div id="chat-container"></div>
+        </div>
+        <textarea id="message_content"></textarea>
+        <button id="send_button">Отправить сообщение</button>
+        <button onclick="closeChat()">Закрыть чат</button>
+    </div>
 </div>
 
-<div id="chat_list_window" style="display: none;">
-    <h2>Ваши чаты</h2>
-    <input type="text" placeholder="Поиск" id="search_chat" onkeyup="filterChats()">
-    <div id="chat_list"></div>
-    <button onclick="closeChatList()">Закрыть</button>
-</div>
 
 <script>
     let currentUserId;
@@ -32,7 +35,7 @@
 
     if (!token) {
         alert("Вы не авторизованы!");
-        window.location.href = 'login.html'; // Перенаправление на страницу логина
+        window.location.href = 'login.html';
     }
 
     const fetchUserData = async () => {
@@ -92,8 +95,10 @@
                 chatListDiv.innerHTML += `
                 <div class="chat-container">
                     <div class="chat-header">
-                        <span class="chat-user">${userName || 'Unknown'}</span>
+                         <span class="chat-user name">${userName || 'Unknown'}</span>
                     </div>
+                    <br>
+                    <strong class="last-message">Последнее сообщение:</strong>
                     <div class="chat-body">
                         ${chat.content || 'No content'}
                     </div>
@@ -122,7 +127,7 @@
             const chatHistory = await response.json();
             chatHistory.forEach(message => renderMessage(message));
             const chatHistoryDiv = document.getElementById("chat_history");
-            chatHistoryDiv.innerHTML = ''; // Очищаем предыдущие сообщения
+            chatHistoryDiv.innerHTML = '';
 
             chatHistoryDiv.innerHTML = chatHistory.map(message => {
                 const isAuthor = message.sender_id === currentUserId;
@@ -147,15 +152,15 @@
         document.getElementById("chat_window").style.display = 'block';
         loadChatHistory(chatReceiverId, chatReceiverName); // Загружаем историю чата
 
-        document.getElementById("send_button").onclick = sendMessage; // Привязываем обработчик к кнопке
+        document.getElementById("send_button").onclick = sendMessage;
     };
     const renderMessage = (message) => {
         const chatContainer = document.getElementById("chat-container");
 
-        // Предполагается, что message.timestamp в формате UTC
+
         const messageTime = new Date(message.timestamp);
 
-        // Преобразуем время в локальное
+
         const formattedTime = messageTime.toLocaleString('ru-RU', {
             timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, // Временная зона пользователя
             hour: '2-digit',
@@ -166,7 +171,7 @@
             year: 'numeric',
         });
 
-        // Проверяем, что chatContainer существует
+
         if (!chatContainer) {
             console.error("chat-container не найден.");
             return;
@@ -236,6 +241,7 @@
             console.error("Не удалось получить данные пользователя.");
         }
     });
+
 </script>
 </body>
 </html>

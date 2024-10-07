@@ -7,19 +7,38 @@
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Создать пост</h1>
-        <p>Заголовок:</p>
-        <input type="text" id="title" placeholder="Введите заголовок">
+<div class="sidebar">
+    <a href="http://51.250.18.211/index.html">
+        <span class="icon icon-home"></span>
+        <span class="text">Главная</span>
+    </a>
 
-        <p>Содержимое:</p>
-        <textarea id="content" placeholder="Введите содержимое поста"></textarea>
-
-        <p>Фото:</p>
-        <input type="file" id="photo" multiple>
-
-        <button onclick="createPost()">Опубликовать</button>
+    <a href="http://51.250.18.211/chat.html">
+        <span class="icon icon-add"></span>
+        <span class="text">Сообщения</span>
+    </a>
+    <a href="http://51.250.18.211/post_user_auth.html">
+        <span class="icon icon-notifications"></span>
+        <span class="text">Создать пост</span>
+    </a>
+    <a href="http://51.250.18.211/user.html">
+        <span class="icon icon-profile"></span>
+        <span class="text">Мои друзья</span>
+    </a>
+</div>
+    <div class="post-page">
+        <div class="post-container">
+            <h1>Создать пост</h1>
+            <label class="label" for="title">Заголовок:</label>
+            <input type="text" id="title" placeholder="Введите заголовок">
+            <label class="label" for="content">Содержимое:</label>
+            <textarea id="content" placeholder="Введите содержимое поста"></textarea>
+            <<label class="label" for="photo">Фото:</label>
+            <input type="file" id="photo" multiple>
+            <button onclick="createPost()">Опубликовать</button>
+        </div>
     </div>
+
 
     <script>
         // Функция создания поста

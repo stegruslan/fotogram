@@ -2,14 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <meta http-equiv="X-UA-Compatible" content="ie=edge">-->
     <title>Посты на которых подписан</title>
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
+
 <div class="sidebar">
-    <a href="http://51.250.18.211/user.html">
+    <a href="http://51.250.18.211/index.html">
         <span class="icon icon-home"></span>
         <span class="text">Главная</span>
     </a>
@@ -22,36 +23,36 @@
         <span class="icon icon-notifications"></span>
         <span class="text">Создать пост</span>
     </a>
-    <a href="#">
+    <a href="http://51.250.18.211/user.html">
         <span class="icon icon-profile"></span>
-        <span class="text">Профиль</span>
+        <span class="text">Мои друзья</span>
     </a>
 </div>
+    <div id="posts"></div>
 
-<div id="posts"></div>
-<!-- Кнопка для открытия списка чатов -->
 
-<!-- Чатное окно -->
-
-<div id="chat_window" style="display: none;">
-    <h1>Чат с: <span id="chat_with"></span></h1>
-    <div id="chat_history">
-        <!-- Контейнер для сообщений чата -->
-        <div id="chat-container"></div>
+    <div id="chat_window" style="display: none;">
+        <h1>Чат с: <span id="chat_with"></span></h1>
+        <div id="chat_history">
+            <!-- Контейнер для сообщений чата -->
+            <div id="chat-container"></div>
+        </div>
+        <textarea id="message_content"></textarea>
+        <button onclick="sendMessage()">Отправить сообщение</button>
+        <button onclick="closeChat()">Закрыть чат</button>
     </div>
-    <textarea id="message_content"></textarea>
-    <button onclick="sendMessage()">Отправить сообщение</button>
-    <button onclick="closeChat()">Закрыть чат</button>
-</div>
-<!-- Окно списка чатов -->
-<div id="chat_list_window" style="display: none;">
-    <h2>Ваши чаты</h2>
-    <input type="text" placeholder="Поиск" id="search_chat" onkeyup="filterChats()">
-    <div id="chat_list"></div>
-    <button onclick="closeChatList()">Закрыть</button>
-</div>
+    <!-- Окно списка чатов -->
+    <div id="chat_list_window" style="display: none;">
+        <h2>Ваши чаты</h2>
+        <input type="text" placeholder="Поиск" id="search_chat" onkeyup="filterChats()">
+        <div id="chat_list"></div>
+        <button onclick="closeChatList()">Закрыть</button>
+    </div>
+
+
 
 <script>
+
 <!--Фильтрует список чатов по введенному тексту, скрывая чаты, имена которых не содержат поисковую строку.-->
     const filterChats = () => {
         const searchInput = document.getElementById('search_chat').value.toLowerCase();
@@ -214,48 +215,44 @@
 
     // Отображает сообщение в чате, различая сообщения от текущего пользователя и от собеседника.
     const renderMessage = (message) => {
-        console.log("Rendering message:", message);  // Лог для отладки
         const chatContainer = document.getElementById("chat-container");
 
-        // if (!chatContainer) {
-        //     console.error("Chat container not found.");
-        //     return;
-        // }
+        // Предполагается, что message.timestamp в формате UTC
+        const messageTime = new Date(message.timestamp);
 
-        // Создаем элемент сообщения
-        const messageElement = document.createElement("div");
+        // Преобразуем время в локальное
+        const formattedTime = messageTime.toLocaleString('ru-RU', {
+            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, // Временная зона пользователя
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+        });
 
-        // Проверяем, кто отправил сообщение
-        if (message.sender_id === currentUserId) {
-            // Сообщение отправлено текущим пользователем, отображаем его слева
-            messageElement.classList.add("my-message");
-            messageElement.innerHTML = `
-            <p>Вы: ${message.content}</p>
-            <p>${new Date(message.timestamp).toLocaleString()}</p>
-        `;
-        } else {
-            // Сообщение отправлено собеседником, отображаем его справа
-            messageElement.classList.add("other-message");
-            messageElement.innerHTML = `
-            <p>${message.sender_name}: ${message.content}</p>
-            <p>${new Date(message.timestamp).toLocaleString()}</p>
-        `;
+        // Проверяем, что chatContainer существует
+        if (!chatContainer) {
+            console.error("chat-container не найден.");
+            return;
         }
 
-        // Добавляем элемент сообщения в контейнер чата
+        const messageElement = document.createElement("div");
+
+        if (message.sender_id === currentUserId) {
+            messageElement.classList.add("my-message");
+            messageElement.innerHTML = `<p>Вы: ${message.content}</p><p>${formattedTime}</p>`;
+        } else {
+            messageElement.classList.add("other-message");
+            messageElement.innerHTML = `<p>${message.sender_name}: ${message.content}</p><p>${formattedTime}</p>`;
+        }
+
         chatContainer.appendChild(messageElement);
     };
 
 
-    // Закрывает окно чата.
-    const closeChat = () => {
-        document.getElementById("chat_window").style.display = 'none';
-    };
-
-    //  Отправляет сообщение собеседнику через API и очищает поле ввода.
     const sendMessage = async () => {
-        const content = document.getElementById("message_content").value; // Получаем содержимое сообщения
-
+        const content = document.getElementById("message_content").value;
         if (!content) {
             alert("Введите сообщение перед отправкой.");
             return;
@@ -269,7 +266,7 @@
             },
             body: JSON.stringify({
                 receiver_id: chatReceiverId,
-                sender_id: currentUserId,  // Используем идентификатор текущего пользователя
+                sender_id: currentUserId,
                 content: content
             })
         });
@@ -281,6 +278,15 @@
             await loadChatHistory(chatReceiverId, chatReceiverName); // Перезагрузка истории чата после отправки сообщения
         }
     };
+
+
+    // Закрывает окно чата.
+    const closeChat = () => {
+        document.getElementById("chat_window").style.display = 'none';
+    };
+
+    //  Отправляет сообщение собеседнику через API и очищает поле ввода.
+
 
 
     // Загружает историю сообщений для текущего чата и отображает их.
@@ -349,6 +355,7 @@
     // Функция для закрытия окна списка чатов
     const closeChatList = () => {
         document.getElementById("chat_list_window").style.display = 'none';
+        window.location.href = 'http://51.250.18.211/user.html';
     };
 
     // Загружает список чатов и отображает их в интерфейсе.
@@ -463,17 +470,21 @@
             const heartIcon = post.liked ? '❤️' : '🤍'; // Используем смайлы для лайков
             const div_post = `<div>
 ${imgs}
-${post.author_name}<br>
+<strong class="post-author">Автор:</strong>
+<span class="author-name">${post.author_name}</span><br>${post.author_name}<br>
 <button class="subscribe_button" id="subscribe${post.author_id}">
 ${post.is_subscribed ? 'Отписаться' : 'Подписаться'}
 </button>
 <button class="chat_button" id="chat${post.author_id}">Сообщение</button><br>
-${formattedDateTime}<br>
-${post.content}<br>
+<strong class="post-date">Дата публикации:</strong>
+<span class="date">${formattedDateTime}</span><br>
+<strong class="post-description-label">Описание:</strong>
+<span class="post-content">${post.content}</span><br>
 <span class="count_likes" id="count_likes${post.id}">${post.count_likes}</span>
 <button onclick="switch_like('like${post.id}')" class="like_button" id="like${post.id}">
 ${heartIcon}
 </button>
+<p class="likes-text">Число отметок "Нравится"</p>
 <div class="post_comments" id="post_comments${post.id}">
 <p style="color: blue;" class="count_comments" id="count_comments${post.id}" onclick="open_comments(${post.id})">Комментарии (${post.count_comments})</p>
 </div>

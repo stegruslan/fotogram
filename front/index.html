@@ -6,56 +6,419 @@
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-<div>
-    <div id="header">
 
-        <button onclick="location.href='/post_user_auth.html'" class="create-post-button">Создать пост</button>
-    </div>
-    <div id="posts"></div>
+<div class="sidebar">
+    <a href="http://51.250.18.211/index.html">
+        <span class="icon icon-home"></span>
+        <span class="text">Главная</span>
+    </a>
+
+    <a href="http://51.250.18.211/chat.html">
+        <span class="icon icon-add"></span>
+        <span class="text">Сообщения</span>
+    </a>
+    <a href="http://51.250.18.211/post_user_auth.html">
+        <span class="icon icon-notifications"></span>
+        <span class="text">Создать пост</span>
+    </a>
+    <a href="http://51.250.18.211/user.html">
+        <span class="icon icon-profile"></span>
+        <span class="text">Мои друзья</span>
+    </a>
 </div>
+    <div id="posts"></div>
+
+     <div id="chat_window" style="display: none;">
+        <h1>Чат с: <span id="chat_with"></span></h1>
+        <div id="chat_history">
+            <!-- Контейнер для сообщений чата -->
+            <div id="chat-container"></div>
+        </div>
+        <textarea id="message_content"></textarea>
+        <button onclick="sendMessage()">Отправить сообщение</button>
+        <button onclick="closeChat()">Закрыть чат</button>
+    </div>
+    <div id="chat_list_window" style="display: none;">
+        <h2>Ваши чаты</h2>
+        <input type="text" placeholder="Поиск" id="search_chat" onkeyup="filterChats()">
+        <div id="chat_list"></div>
+        <button onclick="closeChatList()">Закрыть</button>
+    </div>
 <script>
+
     const token = localStorage.getItem("access_token");
     let div_posts = document.getElementById("posts");
+
 
     const get_posts = async () => {
         const response = await send(token);
         if (response.status === 401) location.replace("/auth/");
         const posts = (await response.json()).posts;
+        div_posts.innerHTML = ""; // Очищаем предыдущие посты
         for (let post of posts) {
             let imgs = ``;
             for (let image of post.images) {
-                imgs += `<img src="http://51.250.18.211/api/v1/media_files/${image}" height="200px" width="200px"><br>`;
+                imgs += `
+                    <div class="image-container">
+                        <img src="http://51.250.18.211/api/v1/media_files/${image}" class="post-image">
+                    </div>
+                `;
             }
-            const isSubscribed = post.is_subscribed;
+            const formattedDateTime = formatDateTime(post.created_at);
+            const heartIcon = post.liked ? '❤️' : '🤍'; // Используем смайлы для лайков
             const div_post = `<div>
 ${imgs}
-${post.author_name}<br>
-<button onclick="toggle_subscription(${post.author_id})" class="subscribe_button ${isSubscribed ? 'subscribed' : ''}" id="subscribe${post.author_id}">
-${isSubscribed ? 'Отписаться' : 'Подписаться'}
-</button><br>
-${post.created_at}<br>
-${post.content}<br>
-<span class="count_likes" id="count_likes${post.id}">${post.count_likes}</span> <button onclick="switch_like('like${post.id}')" class="like_button" id="like${post.id}">Лайк!</button>
-<div class="post_comments" id="post_comments${post.id}"><p style="color: blue;" class="count_comments" id="count_comments${post.id}" onclick="open_comments(${post.id})">Комментарии (${post.count_comments})</p></div>
+<strong class="post-author">Автор:</strong>
+<span class="author-name">${post.author_name}</span><br>${post.author_name}<br>
+<button class="subscribe_button" id="subscribe${post.author_id}">
+${post.is_subscribed ? 'Отписаться' : 'Подписаться'}
+</button>
+<button class="chat_button" id="chat${post.author_id}" onclick="startChat(${post.author_id}, '${post.author_name}')">Сообщение</button><br>
+<strong class="post-date">Дата публикации:</strong>
+<span class="date">${formattedDateTime}</span><br>
+<strong class="post-description-label">Описание:</strong>
+<span class="post-content">${post.content}</span><br>
+<span class="count_likes" id="count_likes${post.id}">${post.count_likes}</span>
+<button onclick="switch_like('like${post.id}')" class="like_button" id="like${post.id}">
+${heartIcon}
+</button>
+<div class="post_comments" id="post_comments${post.id}">
+<p style="color: blue;" class="count_comments" id="count_comments${post.id}" onclick="open_comments(${post.id})">Комментарии (${post.count_comments})</p>
+</div>
 </div>`;
             div_posts.innerHTML += div_post;
+
         }
+        renderSubscriptionButtons(posts);
         check_likes(posts);
     };
-
-
-    const URL = `http://51.250.18.211/api/v1/posts/`;
-    const send = async (token) => {
-        return await fetch(URL, {
-            method: 'GET',
+    const fetchSubscription = async (token, authorId, subscribe) => {
+        const url = `http://51.250.18.211/api/v1/users/${authorId}/${subscribe ? 'subscribe/' : 'unsubscribe/'}`;
+        return await fetch(url, {
+            method: 'POST',
             headers: {
-                'Authorization': 'Bearer ' + token
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
             }
         });
     };
+    const fetchUserData = async (token) => {
+        const url = 'http://51.250.18.211/api/v1/users/test/';
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            }
+        });
 
-    const check_token = () => {
+        if (response.ok) {
+            const data = await response.json();
+            console.log("User data:", data);
+            return data;
+        } else {
+            console.error("Failed to fetch user data:", await response.text());
+        }
+    };
+    document.addEventListener("DOMContentLoaded", async () => {
         const token = localStorage.getItem("access_token");
+        const userData = await fetchUserData(token);
+
+        if (userData) {
+            const user_id = userData.user_id;
+            console.log("Fetched user_id:", user_id);
+            localStorage.setItem("user_id", user_id);
+
+            // Проверьте значение user_id после получения данных
+            const storedUserId = localStorage.getItem("user_id");
+            console.log("User ID after fetching user data:", storedUserId);
+        }
+    });
+    const renderSubscriptionButtons = (posts) => {
+        posts.forEach(post => {
+            const button = document.getElementById(`subscribe${post.author_id}`);
+            if (button) {
+                if (post.is_subscribed) {
+                    button.textContent = "Отписаться";
+                    button.classList.add("subscribed"); // добавляем класс subscribed
+                    button.onclick = () => {
+                        unsubscribeFromAuthor(post);
+
+                    };
+                } else {
+                    button.textContent = "Подписаться";
+                    button.classList.remove("subscribed"); // удаляем класс subscribed
+                    button.onclick = () => {
+                        subscribeToAuthor(post);
+                        button.classList.add("subscribed"); // добавляем класс subscribed
+                    };
+                }
+            }
+        });
+    };
+    const subscribeToAuthor = async (post) => {
+        const response = await fetchSubscription(token, post.author_id, true);
+        if (response.ok) {
+            alert("Вы подписались на автора!");
+            renderSubscriptionButtons([post]);
+
+            const button = document.getElementById(`subscribe${post.author_id}`);
+            button.textContent = "Отписаться";
+            button.classList.add("subscribed"); // добавляем класс subscribed
+        } else {
+            alert("Не удалось подписаться.");
+        }
+    };
+
+    const unsubscribeFromAuthor = async (post) => {
+        const response = await fetchSubscription(token, post.author_id, true);
+        if (response.ok) {
+            alert("Вы отписались от автора!");
+
+            const button = document.getElementById(`subscribe${post.author_id}`);
+            button.textContent = "Подписаться";
+            button.classList.remove("subscribed"); // удаляем класс subscribed
+        } else {
+            alert("Не удалось отписаться.");
+        }
+    };
+    let chatReceiverId;
+    let chatReceiverName;
+    document.addEventListener("DOMContentLoaded", async () => {
+        const token = localStorage.getItem("access_token");
+        const userData = await fetchUserData(token);
+
+        if (userData) {
+            const user_id = userData.user_id;
+            console.log("Fetched user_id:", user_id);
+            localStorage.setItem("user_id", user_id);
+
+            // Преобразуем user_id в число
+            const storedUserId = Number(localStorage.getItem("user_id"));
+            console.log("User ID after fetching user data:", storedUserId);
+        }
+    });
+
+    const currentUserId = Number(localStorage.getItem("user_id"));
+
+    const renderMessage = (message) => {
+        const chatContainer = document.getElementById("chat-container");
+
+        // Предполагается, что message.timestamp в формате UTC
+        const messageTime = new Date(message.timestamp);
+
+        // Преобразуем время в локальное
+        const formattedTime = messageTime.toLocaleString('ru-RU', {
+            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, // Временная зона пользователя
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+        });
+
+        // Проверяем, что chatContainer существует
+        if (!chatContainer) {
+            console.error("chat-container не найден.");
+            return;
+        }
+
+        const messageElement = document.createElement("div");
+
+        if (message.sender_id === currentUserId) {
+            messageElement.classList.add("my-message");
+            messageElement.innerHTML = `<p>Вы: ${message.content}</p><p>${formattedTime}</p>`;
+        } else {
+            messageElement.classList.add("other-message");
+            messageElement.innerHTML = `<p>${message.sender_name}: ${message.content}</p><p>${formattedTime}</p>`;
+        }
+
+        chatContainer.appendChild(messageElement);
+    };
+
+
+    const sendMessage = async () => {
+        const content = document.getElementById("message_content").value;
+        if (!content) {
+            alert("Введите сообщение перед отправкой.");
+            return;
+        }
+
+        const response = await fetch("http://51.250.18.211/api/v1/users/messages/", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                receiver_id: chatReceiverId,
+                sender_id: currentUserId,
+                content: content
+            })
+        });
+
+        if (!response.ok) {
+            alert("Ошибка:\n" + (await response.json()).detail);
+        } else {
+            document.getElementById("message_content").value = ''; // Очистка поля ввода
+            await loadChatHistory(chatReceiverId, chatReceiverName); // Перезагрузка истории чата после отправки сообщения
+        }
+    };
+    const closeChat = () => {
+        document.getElementById("chat_window").style.display = 'none';
+    };
+
+
+
+
+    // Загружает историю сообщений для текущего чата и отображает их.
+    const loadChatHistory = async (receiverId, receiverName) => {
+        if (isNaN(currentUserId)) {
+            console.error("Invalid currentUserId:", currentUserId);
+            return;
+        }
+
+        const response = await fetch("http://51.250.18.211/api/v1/users/chat/", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                receiver_id: receiverId,
+                sender_id: currentUserId,
+                content: ""
+            })
+        });
+
+        if (response.ok) {
+            const chatHistory = await response.json();
+            chatHistory.forEach(message => renderMessage(message));
+            const chatHistoryDiv = document.getElementById("chat_history");
+            chatHistoryDiv.innerHTML = ''; // Очищаем предыдущие сообщения
+
+            chatHistoryDiv.innerHTML = chatHistory.map(message => {
+                const isAuthor = message.sender_id === currentUserId;
+                return `
+            <div class="message ${isAuthor ? 'author' : 'receiver'}">
+                <p><strong>${isAuthor ? 'Вы' : receiverName}:</strong> ${message.content}</p>
+                <p><em>${new Date(message.timestamp).toLocaleString()}</em></p>
+            </div>
+        `;
+            }).join('');
+            chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight; // Прокручиваем к последнему сообщению
+        } else {
+            console.error("Failed to load chat history:", await response.text());
+        }
+    };
+
+
+    // Инициализирует чат с выбранным пользователем, загружает историю сообщений.
+    const startChat = (userId, userName) => {
+        console.log("Starting chat with:", userName);
+        chatReceiverId = userId;
+        chatReceiverName = userName;
+
+        document.getElementById("chat_with").innerText = userName;  // Отображаем имя пользователя
+        document.getElementById("chat_window").style.display = 'block';
+        loadChatHistory(chatReceiverId, chatReceiverName);
+
+        // Устанавливаем интервал для обновления чата каждые 5 секунд
+        // setInterval(() => {
+        //     loadChatHistory(chatReceiverId, chatReceiverName);
+        // }, 5000);
+    };
+    const openChatList = () => {
+        document.getElementById("chat_list_window").style.display = 'block';
+        open_chats(); // Загружаем список чатов при открытии
+    };
+
+    const closeChatList = () => {
+        document.getElementById("chat_list_window").style.display = 'none';
+        window.location.href = 'http://51.250.18.211/user.html';
+    };
+
+    // Загружает список чатов и отображает их в интерфейсе.
+    const open_chats = async () => {
+        let chatListDiv = document.getElementById("chat_list");
+
+        try {
+            const response = await fetch("http://51.250.18.211/api/v1/users/chats/", {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error("Failed to load chat list");
+                console.error("Response status:", response.status);
+                console.error("Response text:", errorText);
+                return;
+            }
+
+            const chats = await response.json();
+
+            // Проверка структуры данных
+            if (!Array.isArray(chats)) {
+                console.error("Unexpected response format:", chats);
+                return;
+            }
+
+            chatListDiv.innerHTML = ""; // Очищаем предыдущий список чатов
+
+            for (let chat of chats) {
+                // Проверка структуры каждого объекта чата
+                if (!chat.receiver_id || !chat.content || !chat.timestamp) {
+                    console.error("Unexpected chat object format:", chat);
+                    continue;
+                }
+
+                const formattedDateTime = formatDateTime(chat.timestamp);
+                const userName = await getUserName(chat.receiver_id);
+
+                chatListDiv.innerHTML += `
+            <div class="chat-container">
+                <div class="chat-header">
+                    <span class="chat-user">${userName || 'Unknown'}</span>
+                    <span class="chat-date">${formattedDateTime || 'Unknown Date'}</span>
+                </div>
+                <div class="chat-body">
+                    ${chat.content || 'No content'}
+                </div>
+                <button onclick="startChat(${chat.receiver_id}, '${userName || 'Unknown'}')">Открыть чат</button>
+            </div>`;
+            }
+        } catch (error) {
+            console.error("Error fetching chat list:", error);
+        }
+    };
+
+    // Функция для получения имени пользователя по receiver_id
+    const getUserName = async (receiverId) => {
+        try {
+            const response = await fetch(`http://51.250.18.211/api/v1/users/chats/${receiverId}/`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                console.error("Failed to fetch user name");
+                return null;
+            }
+
+            const user = await response.json();
+            return user.username;
+        } catch (error) {
+            console.error("Error fetching user name:", error);
+            return null;
+        }
     };
 
     const check_likes = (posts) => {
@@ -70,61 +433,86 @@ ${post.content}<br>
             }
         }
     };
-
-    const switch_like = (id) => {
-        let dom_like = document.getElementById(id);
-        if (dom_like.classList.contains("enabled"))
-            remove_like(dom_like);
-        else
-            add_like(dom_like);
-    };
-
     const add_like = (dom_like, ignore_count = false) => {
         let id = dom_like.id.replace("like", "");
         dom_like.classList.add("enabled");
-        dom_like.innerHTML = "Убрать лайк";
+        dom_like.innerHTML = "❤️";
         let count_likes = document.getElementById("count_likes" + id);
         if (!ignore_count) {
-            send_like(token, URL, id, true);
+            sendLike(token, id, true);
             count_likes.innerHTML = String(Number(count_likes.innerHTML) + 1);
         }
     };
+    const switch_like = (id) => {
+        let domLike = document.getElementById(id);
+        if (!domLike) {
+            console.error(`Element with id ${id} not found.`);
+            return;
+        }
+        let post_id = id.replace("like", "");
 
+        if (domLike.classList.contains("enabled")) {
+            remove_like(domLike);
+        } else {
+            add_like(domLike);
+        }
+    };
     const remove_like = (dom_like) => {
         let id = dom_like.id.replace("like", "");
-        send_like(token, URL, id, false);
+        sendLike(token, id, false);
         dom_like.classList.remove("enabled");
-        dom_like.innerHTML = "Лайк!";
+        dom_like.innerHTML = "🤍"; // Используем пустое сердце
         let count_likes = document.getElementById("count_likes" + id);
         count_likes.innerHTML = String(Number(count_likes.innerHTML) - 1);
     };
-
-    const send_like = async (token, url, post_id, like) => {
-        url = url + `${post_id}/like/?like=${like}`;
+    // Отправляет запрос на добавление или удаление лайка через API.
+    const sendLike = async (token, postId, like) => {
+        const url = `http://51.250.18.211/api/v1/posts/${postId}/like/?like=${like}`;
         return await fetch(url, {
             method: 'POST',
             headers: {
                 'Authorization': 'Bearer ' + token
-            }
+            },
         });
     };
+    const formatDateTime = (isoDateTime) => {
+        const date = new Date(isoDateTime);
+        const options = {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        };
+        return date.toLocaleString('ru-RU', options);
+    };
+
 
     const open_comments = async (post_id) => {
         let div_comments = document.getElementById("post_comments" + post_id);
-        const response = await get_comments(token, URL, post_id);
+        const response = await get_comments(token, post_id);
         let comments = (await response.json()).comments;
         div_comments.innerHTML = "";
         for (let comment of comments) {
+            const formattedDateTime = formatDateTime(comment.created_at);
             div_comments.innerHTML += `
-            ${comment.user.fullname} <br>
-            ${comment.created_at} <br><br>
-            ${comment.content} <br><br><br>
+            <div class="comment-container">
+                <div class="comment-header">
+                    <span class="comment-author">${comment.user.fullname}</span>
+                    <span class="comment-date">${formattedDateTime}</span>
+                </div>
+                <div class="comment-body">
+                    ${comment.content}
+                </div>
+                <button class="delete-comment-button" onclick="del_comments(${post_id}, ${comment.id || comment.comment_id})">Удалить комментарий!</button>
+            </div>
             `;
         }
         div_comments.innerHTML += `
-<br>
+        <br>
         <input type="text" id="text_comment${post_id}"> <button onclick="create_comment(${post_id})">Отправить!</button>
-        <p><button onclick="del_comments(${post_id})">Удалить!</button> </p>
         `;
     };
 
@@ -132,13 +520,13 @@ ${post.content}<br>
         const text = document.getElementById("text_comment" + post_id).value;
         document.getElementById("text_comment" + post_id).value = "";
         if (text !== "") {
-            await send_comment(token, URL, post_id, text);
+            await send_comment(token, post_id, text);
         }
         await open_comments(post_id);
     };
 
-    const send_comment = async (token, url, post_id, text) => {
-        url = url + `${post_id}/comments/create/`;
+    const send_comment = async (token, post_id, text) => {
+        const url = `http://51.250.18.211/api/v1/posts/${post_id}/comments/create/`;
         return await fetch(url, {
             method: 'POST',
             headers: {
@@ -149,8 +537,9 @@ ${post.content}<br>
         });
     };
 
-    const get_comments = async (token, url, post_id) => {
-        url = url + `${post_id}/comments/`;
+
+    const get_comments = async (token, post_id) => {
+        const url = `http://51.250.18.211/api/v1/posts/${post_id}/comments/`;
         return await fetch(url, {
             method: 'GET',
             headers: {
@@ -158,55 +547,48 @@ ${post.content}<br>
             }
         });
     };
-    const del_comments = async (token, post_id) => {
-    const url = `http://localhost/api/v1/posts/${post_id}/comments/{comment_id}`;
-    return await fetch(url, {
-        method: 'DELETE',
-        headers: {
-            'Authorization': 'Bearer ' + token
+
+    const del_comments = async (post_id, comment_id) => {
+        if (!comment_id) {
+            console.error("comment_id is undefined");
+            return;
         }
-
-    });
-
-};
-    const initializeSubscriptionButtons = (posts) => {
-    for (let post of posts) {
-        const button = document.getElementById(`subscribe${post.author_id}`);
-        if (post.is_subscribed) {
-            button.innerHTML = "Отписаться";
-            button.classList.add("subscribed");
-        } else {
-            button.innerHTML = "Подписаться";
-            button.classList.remove("subscribed");
-        }
-    }
-};
-
-    const toggle_subscription = async (author_id) => {
-        const button = document.getElementById(`subscribe${author_id}`);
-        const isSubscribed = button.classList.contains("subscribed");
-
-        const url = `http://localhost/api/v1/users/${author_id}/` + (isSubscribed ? 'unsubscribe' : 'subscribe');
+        const url = `http://51.250.18.211/api/v1/posts/${post_id}/comments/${comment_id}`;
+        console.log("DELETE URL:", url);
         const response = await fetch(url, {
-            method: 'POST',
+            method: 'DELETE',
             headers: {
-                'Authorization': 'Bearer ' + token,
-                'Content-Type': 'application/json'
+                'Authorization': 'Bearer ' + token
             }
         });
 
         if (response.ok) {
-            if (isSubscribed) {
-                button.innerHTML = "Подписаться";
-                button.classList.remove("subscribed");
-            } else {
-                button.innerHTML = "Отписаться";
-                button.classList.add("subscribed");
-            }
+            alert("Комментарий успешно удален!");
+            await open_comments(post_id); // Обновляем список комментариев после удаления
         } else {
-            alert("Ошибка при изменении подписки");
+            console.error("Ошибка при удалении комментария:", await response.text());
+            alert("Не удалось удалить комментарий.");
         }
     };
+    const checkToken = () => {
+        if (!token) {
+            console.error("No access token found");
+            location.replace("/auth/");
+        }
+    };
+    const URL = `http://51.250.18.211/api/v1/posts/`;
+    const send = async (token) => {
+        return await fetch(URL, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        });
+    };
+    const check_token = () => {
+        const token = localStorage.getItem("access_token");
+    }
+
 
     check_token();
     get_posts();

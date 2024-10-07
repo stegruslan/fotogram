@@ -8,21 +8,21 @@
 <body>
 <div>
     <h1>Регистрация</h1>
-    <p>Username</p>
-    <input type="text" id="username">
-    <p>Полное имя</p>
-    <input type="text" id="fullname">
-    <p>Пароль</p>
-    <input type="password" id="password">
-    <p>Повторите пароль</p>
-    <input type="password" id="password_repeat">
-    <p>О себе</p>
-    <input type="text" id="bio">
-    <p>Дата рождения</p>
-    <input type="date" id="birthday">
+    <label class="label" for="username">Username</label>
+    <input class="input-field" type="text" id="username">
+    <label class="label" for="fullname">Полное имя</label>
+    <input class="input-field" type="text" id="fullname">
+    <label class="label" for="password">Пароль</label>
+    <input class="input-field" type="password" id="password">
+    <label class="label" for="password_repeat">Повторите пароль</label>
+    <input class="input-field" type="password" id="password_repeat">
+    <label class="label" for="bio">О себе</label>
+    <input class="input-field" type="text" id="bio">
+    <label class="label" for="birthday">Дата рождения</label>
+    <input class="input-field" type="date" id="birthday">
     <br>
     <br>
-    <button onclick="reg()">Зарегистрироваться</button>
+    <button class="signup-link" onclick="reg()">Зарегистрироваться</button>
     <script>
         const reg = async () => {
             let username = document.getElementById("username").value;

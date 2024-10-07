@@ -1,8 +1,6 @@
-
-/* Общие стили */
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background-color: #ffffff;
+    background-image: url("static/header.jpg");
     margin: 0;
     padding: 0;
     display: flex;
@@ -10,13 +8,33 @@ body {
     align-items: center;
     min-height: 100vh;
 }
+h1 {
+    color: white;
+}
+h2{
+    color: white;
+}
+p {
+    color: #101010;
+}
+
+.label_signup {
+
+    color: #f8f8f8;
+}
+
+.label_login {
+    font-weight: bold;
+    margin: 10px 0;
+    color: #f8f8f8;
+}
 
 #posts {
     max-width: 600px;
     width: 100%;
     margin: 20px;
-    background-color: #fff;
-    border: 1px solid #dbdbdb;
+    background-color: #0e0000;
+    border: 1px solid #000000;
     border-radius: 3px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
@@ -48,7 +66,7 @@ div.post:last-child {
 /* Информация об авторе */
 .post .author_name {
     font-weight: bold;
-    color: #262626;
+    color: #f8f8f8;
     margin-bottom: 5px;
 }
 
@@ -69,9 +87,15 @@ div.post:last-child {
     margin-top: 5px;
 }
 
+.subscribed {
+    background-color: #8031dc;
+    color: #ffffff;
+}
+
 .subscribe_button.subscribed {
     background-color: #8e8e8e;
 }
+
 
 .subscribe_button:hover {
     background-color: #007bbd;
@@ -97,14 +121,15 @@ div.post:last-child {
 /* Комментарии */
 .post_comments {
     margin-top: 10px;
+    font-weight: bold;
 }
 
 .comment-container {
-    background-color: #fafafa;
+    background-color: #595959;
     padding: 10px;
     border-radius: 3px;
     margin-top: 10px;
-    border: 1px solid #dbdbdb;
+    border: 1px solid #424242;
 }
 
 .comment-header {
@@ -116,21 +141,30 @@ div.post:last-child {
 }
 
 .comment-author {
-    font-weight: bold;
-    color: #262626;
+
+    color: #fbfbfb;
+
 }
 
 .comment-body {
     font-size: 14px;
-    color: #262626;
+    color: #bdbdbd;
+    position: relative;
+    top: 10px;
+}
+.comment-date {
+    font-style: italic;
+    color: #bab8b8;
 }
 
 .delete-comment-button {
     background-color: transparent;
     border: none;
     color: #ed4956;
-    font-size: 12px;
+    font-size: 16px;
     cursor: pointer;
+    position: relative;
+    top: 20px;
 }
 
 .count_comments {
@@ -143,16 +177,6 @@ div.post:last-child {
     text-decoration: underline;
 }
 
-/* Ввод комментария */
-/*input[type="text"] {*/
-/*    width: calc(100% - 100px);*/
-/*    padding: 8px;*/
-/*    margin: 5px 0;*/
-/*    border: 1px solid #dbdbdb;*/
-/*    border-radius: 3px;*/
-/*    font-size: 14px;*/
-/*    box-sizing: border-box;*/
-/*}*/
 
 button {
     padding: 8px 10px;
@@ -191,13 +215,13 @@ button:hover {
 }
 
 .message.author {
-    background-color: #d3ffd3; /* Цвет фона для сообщений автора */
-    align-self: flex-start; /* Выравнивание сообщений автора влево */
+    background-color: #d3ffd3;
+    align-self: flex-start;
 }
 
 .message.receiver {
-    background-color: #f1f1f1; /* Цвет фона для сообщений получателя */
-    align-self: flex-end; /* Выравнивание сообщений получателя вправо */
+    background-color: #f1f1f1;
+    align-self: flex-end;
 }
 
 header {
@@ -239,10 +263,10 @@ header {
 }
 
 input {
-    width: 100%;
+    width: 90%;
     padding: 8px;
-    margin: 3px 0;
-    border: 1px solid #dbdbdb;
+    margin: 3px 0 20px 0;
+    border: 1px solid #bcbcbc;
     border-radius: 8px;
     font-size: 1rem;
     box-sizing: border-box;
@@ -257,7 +281,7 @@ input {
     top: 0;
     width: 100px;
     height: 100vh;
-    background-color: white;
+    background-color: #151515;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
@@ -269,16 +293,18 @@ input {
 
 .sidebar a {
     text-decoration: none;
-    color: black;
+    color: #f3f2f2;
     margin: 40px 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     transition: color 0.3s;
+    font-weight: bold;
+
 }
 
 .sidebar a:hover {
-    color: #0095f6; /* Цвет при наведении */
+    color: #0095f6;
 }
 
 .sidebar a .icon {
@@ -286,11 +312,11 @@ input {
 }
 
 .sidebar a .text {
-    font-size: 12px;
+    font-size: 14px;
     margin-top: 10px;
 }
 
-/* Декоративные иконки можно заменить на изображения или иконки FontAwesome */
+
 .icon-home::before {
     content: "🏠";
 }
@@ -300,19 +326,218 @@ input {
 }
 
 .icon-add::before {
-    content: "➕";
+    content: "💬";
 }
 
 .icon-notifications::before {
-    content: "🔔";
+    content: "📝";
 }
 
 .icon-profile::before {
-    content: "👤";
+    content: "👥";
 }
 
-/* Для контента страницы */
+
 .content {
     margin-left: 70px;
     padding: 20px;
+}
+
+.label {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffffff;
+    margin-bottom: 5px;
+    display: block;
+}
+/* Стили для заголовков */
+.post-author, .post-date, .post-description-label {
+    font-size: 18px;
+    font-family: 'Arial', sans-serif;
+    color: rgb(251, 251, 251);
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.likes-text {
+    font-size: 14px;
+    color: gray;
+    margin-top: 5px;
+}
+
+.count_likes {
+    margin-left: 15px;
+    font-weight: bold;
+
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+}
+
+#chat_list_window {
+    flex: 3;
+    padding: 20px;
+    border-right: 1px solid #ccc;
+    width: 50%;
+
+}
+
+#chat_window {
+    flex: 50;
+    padding: 10px;
+
+}
+
+.chat-container {
+    margin-bottom: 25px;
+
+}
+
+
+#chat_history {
+    height: 300px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+}
+
+.chat-user {
+    font-weight: bold;
+    color: #333;
+    font-size: 1.2rem;
+    margin-right: 10px;
+}
+.name {
+    color: #fbfbfb;
+    font-weight: bold;
+}
+
+
+.chat-body {
+    margin: 3px 0 20px 0;
+    color: white;
+
+}
+
+.last-message {
+    font-size: 14px;
+    color: #989898;
+    margin-top: 5px;
+}
+
+
+.post-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+
+}
+
+.post-container {
+    max-width: 600px;
+    width: 100%;
+    margin: 20px;
+    padding: 20px;
+    background-image: url("static/header.jpg");
+
+    border-radius: 3px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+
+.post-container h1 {
+    font-size: 24px;
+    color: rgb(255, 255, 255);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+
+.post-container input[type="text"],
+.post-container textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #040404;
+    border-radius: 8px;
+    font-size: 1rem;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+}
+
+
+.post-container input[type="file"] {
+    margin-bottom: 15px;
+}
+
+/* Кнопка для создания поста */
+.post-container button {
+    padding: 10px;
+    background-color: #0095f6;
+    border: none;
+    border-radius: 3px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+}
+
+.post-container button:hover {
+    background-color: #007bbd;
+}
+
+
+.post-container .image-preview {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.post-container .image-preview img {
+    max-width: 100%;
+    max-height: 300px;
+}
+
+.header_top {
+    font-size: 6rem;
+    font-weight: bold;
+    color: #8841f3;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    margin-bottom: 20px;
+    transition: color 0.3s;
+}
+
+.author-name {
+    font-weight: bold;
+    color: #fafafa;
+}
+.date {
+    font-style: italic;
+    color: #9f9f9f;
+}
+.post-content {
+    font-size: 16px;
+    line-height: 1.5;
+    color: #d3d2d2;
+}
+.count_likes {
+    margin-left: 10px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.signup-link {
+    color: #ffffff;
+    text-decoration: none;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.signup-link:hover {
+    background-color: #28a745;
+    color: white;
 }
