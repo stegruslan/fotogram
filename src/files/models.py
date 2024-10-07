@@ -10,11 +10,6 @@ from database import Base
 class FileModel(Base):
     __tablename__ = 'media_files'  # Имя таблицы в базе данных
 
-    # Колонка uuid:
-    # - Тип данных UUID.
-    # - Первичный ключ.
-    # - Значение по умолчанию генерируется функцией gen_random_uuid().
-
     uuid: Mapped[UUID] = mapped_column(Uuid, primary_key=True,
                                        server_default=text(
                                            "gen_random_uuid()"))
