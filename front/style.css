@@ -199,6 +199,9 @@ button:hover {
     }
 }
 
+
+
+
 #chat_history {
     display: flex;
     flex-direction: column;
@@ -301,6 +304,30 @@ input {
     transition: color 0.3s;
     font-weight: bold;
 
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 50px; /* Уменьшаем ширину на мобильных */
+    padding-top: 20px;
+  }
+
+  .sidebar a {
+    font-size: 10px; /* Уменьшаем шрифт */
+    margin: 20px 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .content {
+    margin-left: 50px; /* Сдвиг на мобильных */
+  }
+}
+
+@media (max-width: 480px) {
+  .content {
+    margin-left: 0; /* Если меню скрыто, контент занимает всю ширину */
+  }
 }
 
 .sidebar a:hover {
@@ -439,12 +466,12 @@ input {
 .post-container {
     max-width: 600px;
     width: 100%;
-    margin: 20px;
+
     padding: 20px;
     background-image: url("static/header.jpg");
-
     border-radius: 3px;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    margin-left: 70px;
 }
 
 
