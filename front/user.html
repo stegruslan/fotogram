@@ -566,9 +566,10 @@ ${heartIcon}
             hour: '2-digit',
             minute: '2-digit',
             second: '2-digit',
-            hour12: false
+            hour12: false,
+            timeZone: 'Europe/Moscow'
         };
-        return date.toLocaleString('ru-RU', options);
+        return new Intl.DateTimeFormat('ru-RU', options).format(date);
     };
     // Загружает и отображает комментарии к посту.
     const open_comments = async (post_id) => {
