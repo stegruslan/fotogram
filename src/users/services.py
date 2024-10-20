@@ -109,14 +109,17 @@ def create_access_token(data: dict, expires_delta: int = 15):
     # Возвращаем закодированный JWT
 
 
-def create_refresh_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+def create_refresh_token(data: dict,
+                         expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(timezone.utc) + timedelta(minutes=expires_delta)
     else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.now(timezone.utc) + timedelta(
+            minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire, "type": "refresh"})
-    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY,
+                             algorithm=settings.ALGORITHM)
     return encoded_jwt
 
 
@@ -143,7 +146,7 @@ async def login_for_access_token(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
+            detail="Неверное имя пользователя или пароль",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -152,7 +155,8 @@ async def login_for_access_token(
         data={"sub": user.username, "user_id": user.id},
         # Помещаем имя пользователя в данные токена
         expires_delta=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    refresh_token = create_refresh_token(data={"sub": user.username, "user_id": user.id},
+    refresh_token = create_refresh_token(
+        data={"sub": user.username, "user_id": user.id},
         expires_delta=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     # Возвращаем токен доступа с указанием типа токена
     return Token(access_token=access_token, refresh_token=refresh_token,
@@ -247,7 +251,7 @@ def signup(ud: SignUpSchema):
 
     if ud.password != ud.password_repeat:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail="Passwords must match")
+                            detail="Пароли должны совпадать!")
 
     try:
         with session_factory() as session:
@@ -255,7 +259,7 @@ def signup(ud: SignUpSchema):
             if session.query(User).filter_by(
                 username=ud.username).first() is not None:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                                    detail="Username already taken")
+                                    detail="Имя уже занято!")
 
             # Создаем нового пользователя
             user = User(
@@ -287,11 +291,11 @@ def signup(ud: SignUpSchema):
     except SQLAlchemyError as e:
         # Ловим ошибки SQLAlchemy и возвращаем более детализированное сообщение
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail="Error creating user")
+                            detail="Ошибка создания пользователя")
     except Exception as e:
         # Ловим любые другие исключения
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail="Unexpected error occurred")
+                            detail="Произошла непредвиденная ошибка")
 
 
 def subscribe(current_user: CurrentUser, author_id: int) -> Response:
@@ -312,7 +316,7 @@ def subscribe(current_user: CurrentUser, author_id: int) -> Response:
         # Если автор не найден, выбрасываем HTTP исключение с кодом 404.
         if author is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                                detail="Author not found")
+                                detail="Автор не найден")
         # Ищем запись о подписке текущего пользователя на этого автора.
         current_subscribe = session.query(Subscribe).filter(
             and_(Subscribe.subscriber == current_user,
@@ -347,7 +351,7 @@ def unsubscribe(current_user: CurrentUser, author_id: int) -> Response:
         # Если автор не найден, выбрасываем HTTP исключение с кодом 404.
         if author is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                                detail="Author not found")
+                                detail="Автор не найден")
         # Ищем запись о подписке текущего пользователя на этого автора.
         current_subscribe = session.query(Subscribe).filter(
             Subscribe.author == author).filter(
@@ -369,7 +373,7 @@ def send_message(
         sender = session.query(User).filter_by(id=current_user.id).first()
         if sender is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                                detail="Author not found")
+                                detail="Автор не найден")
         db_message = models.Message(
             sender_id=current_user.id,
             receiver_id=message.receiver_id,
@@ -424,7 +428,7 @@ def open_get_send_chat(
         return history_messages
 
 
-def get_user_name(user_id: int) -> str:
+def get_user_name(user_id: int) -> UserSchema:
     with session_factory() as session:
         user = session.query(models.User).filter(
             models.User.id == user_id).one_or_none()

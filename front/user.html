@@ -89,7 +89,7 @@
             console.log("User data:", data);
             return data;
         } else {
-            console.error("Failed to fetch user data:", await response.text());
+            console.error("Не удалось получить данные пользователя.:", await response.text());
         }
     };
 
@@ -102,9 +102,9 @@
             console.log("Fetched user_id:", user_id);
             localStorage.setItem("user_id", user_id);
 
-            // Проверьте значение user_id после получения данных
+            // Проверяем значение user_id после получения данных
             const storedUserId = localStorage.getItem("user_id");
-            console.log("User ID after fetching user data:", storedUserId);
+            console.log("User ID после получения данных:", storedUserId);
         }
     });
 
@@ -121,7 +121,7 @@
     .then(response => {
         console.log('Raw response:', response); // Логируем ответ
         if (!response.ok) {
-            throw new Error('Failed to fetch posts');
+            throw new Error('Не удалось получить сообщения.');
         }
         return response.json(); // Если `response` корректен, возвращаем JSON
     })
@@ -570,7 +570,9 @@ ${heartIcon}
             timeZone: 'Europe/Moscow'
         };
         return new Intl.DateTimeFormat('ru-RU', options).format(date);
+
     };
+    
     // Загружает и отображает комментарии к посту.
     const open_comments = async (post_id) => {
         let div_comments = document.getElementById("post_comments" + post_id);

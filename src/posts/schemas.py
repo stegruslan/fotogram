@@ -8,13 +8,13 @@ from users.schemas import UserSchema
 
 # Определение схемы данных для поста.
 class PostSchema(BaseModel):
-    id: int  # ID поста.
-    images: list[str]  # Имя файла, связанного с постом.
-    content: str  # Содержимое поста.
-    author_id: int  # ID автора поста.
-    author_name: str  # Имя автора поста.
-    created_at: datetime  # Дата и время создания поста.
-    count_likes: int  # Кол-во лайков
+    id: int
+    images: list[str]
+    content: str
+    author_id: int
+    author_name: str
+    created_at: datetime
+    count_likes: int
     liked: bool
     count_comments: int
     is_subscribed: Optional[bool] = None
@@ -31,11 +31,11 @@ class CommentInputSchema(BaseModel):
 
 # Определение схемы данных для комментария.
 class CommentSchema(BaseModel):
-    id: int  # ID комментария.
-    user_id: int  # ID пользователя, который оставил комментарий.
-    post_id: int  # ID поста, к которому относится комментарий.
-    content: str  # Содержимое комментария.
-    created_at: datetime  # Дата и время создания комментария.
+    id: int
+    user_id: int
+    post_id: int
+    content: str
+    created_at: datetime
 
 
 class CommentWithUserSchema(BaseModel):

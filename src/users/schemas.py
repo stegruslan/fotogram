@@ -1,6 +1,5 @@
 """Схемы pydantic для работы представлений."""
 from datetime import datetime
-
 from pydantic import BaseModel
 
 
@@ -61,7 +60,6 @@ class MessageResponse(BaseModel):
 
 
 class Chat(BaseModel):
-    # id: int
     sender_id: int
     receiver_id: int
     content: str
