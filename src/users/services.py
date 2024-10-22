@@ -111,6 +111,17 @@ def create_access_token(data: dict, expires_delta: int = 15):
 
 def create_refresh_token(data: dict,
                          expires_delta: Optional[timedelta] = None) -> str:
+    """
+       Создает refresh-токен на основе переданных данных и возвращает его в виде строки.
+
+       Args:
+           data (dict): Данные для включения в токен.
+           expires_delta (Optional[timedelta]): Время жизни токена.
+           Если не указано, используется значение по умолчанию из настроек.
+
+       Returns:
+           str: Закодированный JWT-токен.
+       """
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(timezone.utc) + timedelta(minutes=expires_delta)
@@ -369,6 +380,19 @@ def send_message(
     message: schemas.MessageCreate,
     current_user: models.User = Depends(get_current_user)
 ):
+    """
+        Отправляет новое сообщение от текущего пользователя.
+
+        Args:
+            message (schemas.MessageCreate): Данные сообщения (получатель и содержимое).
+            current_user (models.User): Текущий пользователь, отправляющий сообщение.
+
+        Returns:
+            models.Message: Сохраненное сообщение.
+
+        Raises:
+            HTTPException: Если отправитель не найден.
+        """
     with session_factory() as session:
         sender = session.query(User).filter_by(id=current_user.id).first()
         if sender is None:
@@ -388,6 +412,15 @@ def send_message(
 def get_messages(
     current_user: models.User = Depends(get_current_user)
 ):
+    """
+       Получает все сообщения, отправленные или полученные текущим пользователем.
+
+       Args:
+           current_user (models.User): Текущий пользователь.
+
+       Returns:
+           List[models.Message]: Список сообщений пользователя, отсортированных по времени.
+       """
     with session_factory() as session:
         messages = session.query(models.Message).filter(
             (models.Message.sender_id == current_user.id) |
@@ -400,6 +433,16 @@ def open_get_send_chat(
     chat: schemas.Chat,
     current_user: models.User = Depends(get_current_user)
 ):
+    """
+       Открывает чат с указанным получателем и отправляет новое сообщение, если это необходимо.
+
+       Args:
+           chat (schemas.Chat): Данные чата (получатель и сообщение).
+           current_user (models.User): Текущий пользователь.
+
+       Returns:
+           List[models.Message]: История сообщений между текущим пользователем и получателем.
+       """
     with session_factory() as session:
         # Получаем историю сообщений между текущим пользователем и указанным получателем
         history_messages = session.query(models.Message).filter(
@@ -429,6 +472,18 @@ def open_get_send_chat(
 
 
 def get_user_name(user_id: int) -> UserSchema:
+    """
+       Возвращает информацию о пользователе по его идентификатору.
+
+       Args:
+           user_id (int): Идентификатор пользователя.
+
+       Returns:
+           schemas.UserSchema: Информация о пользователе.
+
+       Raises:
+           HTTPException: Если пользователь не найден.
+       """
     with session_factory() as session:
         user = session.query(models.User).filter(
             models.User.id == user_id).one_or_none()
@@ -449,6 +504,15 @@ def get_user_name(user_id: int) -> UserSchema:
 def get_all_chats(
     current_user: models.User = Depends(get_current_user)
 ):
+    """
+        Возвращает список всех чатов текущего пользователя с их последними сообщениями.
+
+        Args:
+            current_user (models.User): Текущий пользователь.
+
+        Returns:
+            List[models.Message]: Список последних сообщений в каждом чате пользователя.
+        """
     with session_factory() as session:
         # Получаем все сообщения, отправленные и полученные текущим пользователем
         chats_query = session.query(
