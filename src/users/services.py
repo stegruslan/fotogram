@@ -266,7 +266,7 @@ def signup(ud: SignUpSchema):
 
     try:
         with session_factory() as session:
-            # Проверяем, существует ли пользователь с таким же именем
+            # Проверяем, существует ли пользователь с таким же именем.
             if session.query(User).filter_by(
                 username=ud.username).first() is not None:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
