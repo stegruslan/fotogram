@@ -24,7 +24,7 @@ class ResponsePostsSchema(BaseModel):
     posts: list[PostSchema]
 
 
-# Определение схемы данных для входящего комментария
+# Определение схемы данных для входящего комментария.
 class CommentInputSchema(BaseModel):
     content: str
 
