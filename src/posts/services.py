@@ -29,7 +29,7 @@ def get_posts_subscribes(current_user: CurrentUser, user_id: int | None = None) 
         ResponsePostsSchema: Схема с информацией о постах.
     """
     with session_factory() as session:
-        # Получаем IDs пользователей, на которых подписан текущий пользователь
+        # Получаем IDs пользователей, на которых подписан текущий пользователь.
         subscribed_users_ids = session.query(Subscribe.author_id).filter(
             Subscribe.subscriber_id == current_user.id
         ).subquery()
