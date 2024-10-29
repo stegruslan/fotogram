@@ -1,8 +1,6 @@
 import os
-
 from fastapi import HTTPException
 from starlette.responses import FileResponse
-
 from database import session_factory
 from files.models import FileModel
 from settings import settings

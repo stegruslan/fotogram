@@ -26,9 +26,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
-# Объект для аутентификации через OAuth2.
-
-
+# Объект для аутентификации через OAuth2
 def verify_password(plain_password, hashed_password):
     """
         Проверяет соответствие хэшированного пароля переданному паролю.

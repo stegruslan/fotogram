@@ -1,12 +1,10 @@
 """Модуль для запуска FASTAPI."""
 from datetime import datetime
 from http.client import HTTPException
-
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from starlette import status
 from starlette.websockets import WebSocket, WebSocketDisconnect
-
 from database import session_factory
 from files.routing import router as files_router
 from posts.routing import router as posts_router
@@ -33,7 +31,7 @@ def create_app() -> FastAPI:
 
 app = create_app()
 
-# Подключаем маршруты для управления пользователями,//
+# Подключаем маршруты для управления пользователями,
 # постами и файлами с префиксом "/api/v1"
 app.include_router(users_router, prefix="/api/v1", tags=["api/v1"])
 app.include_router(posts_router, prefix="/api/v1", tags=["api/v1"])

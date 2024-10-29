@@ -1,8 +1,6 @@
 """Маршруты для пользователей."""
 from typing import List
-
 from fastapi import APIRouter
-
 import users.schemas
 from users import schemas
 from users.schemas import UserSchema, Token, MessageCreate, MessageResponse

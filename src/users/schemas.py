@@ -32,23 +32,26 @@ class Token(BaseModel):
     token_type: str
     refresh_token: str
 
+
 class TokenData(BaseModel):
     """Данные для размещения в токене."""
     username: str | None = None
 
 
-# class RefreshToken(BaseModel):
-#     """Модель refresh token."""
-#     token: str
-#     expires_at: datetime  # дата и время истечения срока действия токена.
+class RefreshToken(BaseModel):
+    """Схема refresh token."""
+    token: str
+    expires_at: datetime  # дата и время истечения срока действия токена.
 
 
 class MessageCreate(BaseModel):
+    """Схема для создания сообщения."""
     receiver_id: int
     content: str
 
 
 class MessageResponse(BaseModel):
+    """Схема для отображения данных сообщения."""
     id: int
     sender_id: int
     receiver_id: int
@@ -60,12 +63,16 @@ class MessageResponse(BaseModel):
 
 
 class Chat(BaseModel):
+    """Схема чата."""
+
     sender_id: int
     receiver_id: int
     content: str
 
 
 class ChatResponse(BaseModel):
+    """Схема для отображения информации о чате."""
+
     user_id: int
     user_name: str
     last_message_time: datetime
@@ -73,6 +80,7 @@ class ChatResponse(BaseModel):
 
 
 class UserResponse(BaseModel):
+    """Схема для отображения информации о пользователе."""
     user_id: int
     fullname: str
     birthday: str

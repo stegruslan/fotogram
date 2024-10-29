@@ -86,7 +86,7 @@ from sqlalchemy import engine_from_config, pool
 from alembic import context
 
 # Импортируйте вашу основную модель и метаданные
-from users.models import Base  # Убедитесь, что этот путь корректен и импортирует ваш Base
+from users.models import Base
 from users.models import Message  # Если необходимо
 
 # Интерпретируйте файл конфигурации для Python логгирования.

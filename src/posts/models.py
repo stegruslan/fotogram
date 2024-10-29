@@ -1,9 +1,6 @@
 from datetime import datetime
-
 from sqlalchemy import text, ForeignKey, Column, Integer
-
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-
 from database import Base
 from files.models import FileModel
 

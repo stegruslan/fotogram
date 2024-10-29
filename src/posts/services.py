@@ -17,7 +17,10 @@ from users.schemas import UserSchema
 from users.services import CurrentUser, get_current_user, oauth2_scheme
 
 MAX_FILE_SIZE = 6 * 1024 * 1024  # Максимальный размер файла  6 МБ
-def get_posts_subscribes(current_user: CurrentUser, user_id: int | None = None) -> ResponsePostsSchema:
+
+
+def get_posts_subscribes(current_user: CurrentUser,
+                         user_id: int | None = None) -> ResponsePostsSchema:
     """
     Получает посты только от пользователей, на которых подписан текущий пользователь.
 
@@ -48,12 +51,13 @@ def get_posts_subscribes(current_user: CurrentUser, user_id: int | None = None) 
             if not user:
                 raise HTTPException(status_code=404, detail="User not found")
             if user_id not in [user.id for user in session.query(User).join(
-                    Subscribe,
-                    Subscribe.author_id == User.id
-                ).filter(
-                    Subscribe.subscriber_id == current_user.id
-                ).all()]:
-                raise HTTPException(status_code=403, detail="Not subscribed to this user")
+                Subscribe,
+                Subscribe.author_id == User.id
+            ).filter(
+                Subscribe.subscriber_id == current_user.id
+            ).all()]:
+                raise HTTPException(status_code=403,
+                                    detail="Not subscribed to this user")
             query = query.filter(Post.author_id == user_id)
 
         posts = query.all()

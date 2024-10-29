@@ -6,7 +6,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import Uuid
 from database import Base
 from uuid import UUID
-
 from posts.models import Post
 
 
@@ -32,7 +31,6 @@ class User(Base):
                                                           back_populates="subscriber",
                                                           primaryjoin="Subscribe.subscriber_id == User.id")
 
-
     subscribes: Mapped[list["Subscribe"]] = relationship("Subscribe",
                                                          back_populates="author",
                                                          primaryjoin="Subscribe.author_id == User.id")
@@ -51,7 +49,6 @@ class Subscribe(Base):
     subscriber: Mapped[User] = relationship("User",
                                             foreign_keys=[subscriber_id],
                                             back_populates="subscribers")
-
 
     author: Mapped[User] = relationship("User", foreign_keys=[author_id],
                                         back_populates="subscribes")
